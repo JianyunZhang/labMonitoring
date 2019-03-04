@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from login import views
+from login import views #需要先导入App中的views文件
 
+#添加路由信息，重点是路由表达式和后面的视图函数
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('index/', views.index),
