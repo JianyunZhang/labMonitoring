@@ -21,4 +21,7 @@ from login import views #需要先导入App中的views文件
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('index/', views.index),
+    path('login/', views.login),
+    path('register/', views.register),
+    path('logout/', views.logout),
 ]
