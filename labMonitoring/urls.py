@@ -15,12 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-#需要先导入App中的views文件
+# 需要先导入App中的views文件
 from login import views
 
-#添加路由信息，重点是路由表达式和后面的视图函数
+# 添加路由信息，重点是路由表达式和后面的视图函数
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', views.login),
-    path('register/', views.register),
+    # 导入login app路由路径
+    path('login/login/', views.login),
+    path('login/register/', views.register),
 ]
