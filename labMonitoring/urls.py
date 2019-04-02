@@ -14,14 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-# 需要先导入App中的views文件
-from login import views
+from django.urls import path, include
 
 # 添加路由信息，重点是路由表达式和后面的视图函数
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # 导入login app路由路径
-    path('login/login/', views.login),
-    path('login/register/', views.register),
+    # 包含login app的urls文件
+    path('login/', include('login.urls')),
 ]

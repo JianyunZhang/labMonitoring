@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'login.apps.LoginConfig',
+    'login',  # 登录注册模块
 ]
 
 MIDDLEWARE = [
@@ -120,8 +120,8 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_URL = '/static/' #这个static指的是在浏览器中直接访问静态文件需要添加的前缀部分，比如http://127.0.0.1:8000/static/logo.jpg
+STATIC_URL = '/static/'  # 这个static指的是在浏览器中直接访问静态文件需要添加的前缀部分，比如http://127.0.0.1:8000/static/logo.jpg
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')    #这里的static是项目目录中的static目录名
+    os.path.join(BASE_DIR, 'static')   # 这里的static是项目目录中的static目录名
 ]
