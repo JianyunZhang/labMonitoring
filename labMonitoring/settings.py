@@ -121,6 +121,7 @@ USE_TZ = False
 
 STATIC_URL = '/static/'  # 这个static指的是在浏览器中直接访问静态文件需要添加的前缀部分，比如http://127.0.0.1:8000/static/logo.jpg
 
+# STATICFILES_DIRS一般用来设置通用的静态资源，对应的目录不放在APP下，而是放在Project下
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')   # 这里的static是项目目录中的static目录名
 ]

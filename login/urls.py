@@ -7,4 +7,5 @@ urlpatterns = [
     # 导入login app路由路径
     path('login/', views.login),
     path('register/', views.register),
+    path('student-index/', views.student_index),
 ]

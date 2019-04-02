@@ -18,6 +18,7 @@ from django.urls import path, include
 
 # 添加路由信息，重点是路由表达式和后面的视图函数
 urlpatterns = [
+    # 设置Django后台管理界面
     path('admin/', admin.site.urls),
     # 包含login app的urls文件
     path('login/', include('login.urls')),
