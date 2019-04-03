@@ -17,5 +17,5 @@ def register(request):
 
 
 def student_index(request):
-    return render(request, 'login/student-index.html.html')
+    return render(request, 'login/student-index.html')
 
