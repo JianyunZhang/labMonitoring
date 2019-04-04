@@ -21,5 +21,5 @@ urlpatterns = [
     # 设置Django后台管理界面
     path('admin/', admin.site.urls),
     # 包含login app的urls文件
-    path('login/', include('login.urls')),
+    path('', include('login.urls')),
 ]
