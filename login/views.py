@@ -17,7 +17,16 @@ def login(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         typeOfUser = request.POST.get('typeOfUser')
-        print(username, password, typeOfUser)
+        print(username, password, typeOfUser)   # 打印传输进来的用户名和密码
+
+        user = {'username': username, 'password': password}  # 将传输进来的用户名和密码构成一个字典
+        request.session['user'] = user   # 将登录信息传入session
+
+        if typeOfUser == 'student':
+            return render(request, 'login/student-index.html', user)
+        if typeOfUser == 'teacher':
+            return render(request, 'login/teacher-index.html', user)
+
     return render(request, 'login/login.html')
 
 
@@ -27,4 +36,9 @@ def register(request):
 
 def student_index(request):
     return render(request, 'login/student-index.html')
+
+
+def welcome(request):
+    return render(request, 'login/welcome.html')
+
 

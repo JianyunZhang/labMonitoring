@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import djcelery
+# 启动Celery并使用Django项目作为broker
+djcelery.setup_loader()
+BROKER_URL = 'django://'    # Broker的代理地址
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -36,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'djcelery',  # Celery功能模块
+    'kombu.transport.django',  # 基于Django的broker功能模块
     'login',  # 登录注册模块
 ]
 
