@@ -14,7 +14,6 @@ class Student(models.Model):    # 学生类
     school = models.CharField(max_length=30)    # 学院
     specialty = models.CharField(max_length=30)  # 专业
     class_no = models.CharField(max_length=30)  # 班级
-    register_time = models.DateTimeField(auto_now_add=True)     # 注册时间
 
 
 class Teacher(models.Model):  # 教师类
@@ -27,7 +26,6 @@ class Teacher(models.Model):  # 教师类
     school = models.CharField(max_length=30)  # 学院
     department = models.CharField(max_length=30)  # 部门
     title = models.CharField(max_length=30)  # 职称
-    register_time = models.DateTimeField(auto_now_add=True)  # 注册时间
 
 
 class Admin(models.Model):  # 管理员类

@@ -16,6 +16,12 @@ import djcelery
 djcelery.setup_loader()
 BROKER_URL = 'django://'    # Broker的代理地址
 
+# 使Celery以eager模式运行, 调用task函数不需要加delay
+CELERY_ALWAYS_EAGER = True
+
+# 开启Celery定期任务 将定期任务储存在django数据库中
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
