@@ -22,4 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # 包含login app的urls文件
     path('', include('login.urls')),
+    # 包含monitor app的urls文件
+    path('monitor/', include('monitor.urls')),
 ]

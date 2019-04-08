@@ -12,15 +12,19 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 import djcelery
-# 启动Celery并使用Django项目作为broker
+# Celery配置，启动Celery并使用Django项目作为broker
+# Celery会查看所有INSTALLED_APPS中app目录中的tasks.py文件, 找到标记为task的function, 并将它们注册为celery task
 djcelery.setup_loader()
-BROKER_URL = 'django://'    # Broker的代理地址
 
-# 使Celery以eager模式运行, 调用task函数不需要加delay
-CELERY_ALWAYS_EAGER = True
-
-# 开启Celery定期任务 将定期任务储存在django数据库中
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+BROKER_URL = 'django://'  # Broker的代理地址
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'  # 开启Celery定期任务
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'  # 需要跟踪任务的状态时保存结果和状态
+CELERY_ENABLE_UTC = False  # 不用UTC.
+CELERY_TIMEZONE = 'Asia/Shanghai'  # 指定上海时区
+CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']  # 允许的格式
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_IGNORE_RESULT = True
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -46,9 +50,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'django_celery_beat',   # Celery计划任务模块
     'djcelery',  # Celery功能模块
-    'kombu.transport.django',  # 基于Django的broker功能模块
+    'kombu.transport.django',  # 新增kombu.transport.django是基于Django的broker
     'login',  # 登录注册模块
+    'university',   # 学校信息模块
+    'course',   # 课程模块
+    'monitor',  # 监控拍照模块
 ]
 
 MIDDLEWARE = [
