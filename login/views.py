@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django import forms
+from monitor.tasks import get_camera_list
 from login import models
 from login.models import *
 import json
@@ -13,10 +14,12 @@ import datetime
 
 # 第一个参数必须是request,该参数封装了用户请求的所有内容
 def index(request):
+    get_camera_list()
     # render方法接收request作为第一个参数，要渲染的页面为第二个参数，以及需要传递给页面的数据字典作为第三个参数（可以为空）
     return render(request, 'login/index.html')
 
 
+# 登录界面
 def login(request):
     # 如果form通过POST方法发送数据
     if request.method == 'POST':
@@ -75,10 +78,10 @@ def register(request):
 
         # 若登录账号种类为学生
         if typeOfUser == 'student':
-            try:
+            try:  # 若数据库已经有该学生的记录，则返回注册界面
                 Student.objects.get(id=username)
                 return render(request, 'login/register.html')
-            except Exception as e:
+            except Exception as e:  # 若数据库没有该学生的记录，则增加然后返回登录界面
                 Student.objects.create(id=username, password=password)
                 return render(request, 'login/login.html')
 
