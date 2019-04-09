@@ -20,7 +20,7 @@
     <div class="login layui-anim layui-anim-up">
         <div class="message">登录学生上机实验管理系统</div>
         <div id="darkbannerwrap"></div>
-        
+        <span class="x-red">{{message.alert}}</span>
         <form action="/login/" method="post" class="layui-form">
             {% csrf_token %}   <!--加入这行 -->
             <input name="username" placeholder="用户名" type="text" lay-verify="required" class="layui-input" >
@@ -35,9 +35,9 @@
             <hr class="hr15">
             <input type="submit" value="登录" lay-submit lay-filter="login" style="width:100%;">
             <hr class="hr15">
+        </form>
             <a href="/register/"><input type="button" value="注册" lay-submit lay-filter="login" style="width:100%;"></a>
             <hr class="hr20" >
-        </form>
     </div>
     <!--
     <script>

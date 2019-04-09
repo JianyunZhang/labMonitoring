@@ -64,7 +64,33 @@ def login(request):
     return render(request, 'login/login.html')
 
 
+# 注册页面
 def register(request):
+    # 如果form通过POST方法发送数据
+    if request.method == 'POST':
+        # 接受request.POST参数构造form类的实例
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        typeOfUser = request.POST.get('typeOfUser')
+
+        # 若登录账号种类为学生
+        if typeOfUser == 'student':
+            try:
+                Student.objects.get(id=username)
+                return render(request, 'login/register.html')
+            except Exception as e:
+                Student.objects.create(id=username, password=password)
+                return render(request, 'login/login.html')
+
+        # 若注册账号种类为教师
+        if typeOfUser == 'teacher':
+            try:
+                Teacher.objects.get(id=username)
+                return render(request, 'login/register.html')
+            except Exception as e:
+                Teacher.objects.create(id=username, password=password)
+                return render(request, 'login/login.html')
+
     return render(request, 'login/register.html')
 
 

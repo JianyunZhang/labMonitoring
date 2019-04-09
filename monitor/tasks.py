@@ -6,9 +6,10 @@ import os
 import time
 
 
+# 读取系统中摄像头总数，然后将摄像头信息写入数据库
 @shared_task
 def get_camera_list():
-    print('开始执行异步任务')
+    print('开始获取接入系统的摄像头：')
     total_camera_num = 0
     for num in range(0, 99):
         temp_camera = VideoCapture(num)
@@ -19,6 +20,7 @@ def get_camera_list():
     print('摄像头总数：', total_camera_num)
 
 
+# 控制设置为启用的摄像头拍照
 @shared_task
 def photo_capture():
     # 设置摄像头拍照参数
@@ -31,4 +33,10 @@ def photo_capture():
         dir = os.path.join(BASE_DIR, 'monitor', 'static', 'monitor', 'photo', str(start_time)) + '.jpg'
         print(dir)
         cam.saveSnapshot(dir, timestamp=3, boldfont=1)
+
+
+# 识别照片中的内容，将识别结果存储到指定路径
+@shared_task
+def photo_detection():
+    return
 
