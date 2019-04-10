@@ -22,7 +22,7 @@
   
   <body>
     <div class="x-body">
-        <form action="/monitor/camera-edit/?id={{camera_dict.id }}" method="POST" class="layui-form" onsubmit="var index = parent.layer.getFrameIndex(window.name); parent.layer.close(index);" >
+        <form action="/monitor/camera-edit/?id={{camera_dict.id }}" method="POST" class="layui-form">
           {% csrf_token %}
           <div class="layui-form-item">
               <label for="id" class="layui-form-label">
@@ -72,6 +72,7 @@
               <label for="L_repass" class="layui-form-label">
               </label>
               <input type="submit" name="submit" id="submit" class="layui-btn" lay-filter="submit" lay-submit="" value="确认修改"/>
+              <button class="layui-btn layui-btn-danger" onclick="var index = parent.layer.getFrameIndex(window.name);parent.layer.close(index);">关闭页面</button>
           </div>
       </form>
     </div>

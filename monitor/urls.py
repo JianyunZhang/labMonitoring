@@ -9,4 +9,6 @@ urlpatterns = [
     path('photo/', views.photo),
     path('detection/', views.detection),
     path('camera-edit/', views.camera_edit),
+    path('photo-show/',  views.photo_show),
+    path('detection-show/',  views.detection_show),
 ]
