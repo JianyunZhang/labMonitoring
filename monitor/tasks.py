@@ -31,6 +31,7 @@ def get_camera_list():
         for num in range(total_camera_num-1, len(camera_list)-1):
             Camera.objects.filter(id=num).delete()
 
+
 # 控制设置为启用的摄像头拍照
 @shared_task
 def photo_capture():

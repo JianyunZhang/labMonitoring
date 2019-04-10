@@ -14,7 +14,6 @@ import datetime
 
 # 第一个参数必须是request,该参数封装了用户请求的所有内容
 def index(request):
-    get_camera_list()
     # render方法接收request作为第一个参数，要渲染的页面为第二个参数，以及需要传递给页面的数据字典作为第三个参数（可以为空）
     return render(request, 'login/index.html')
 
@@ -23,7 +22,7 @@ def index(request):
 def login(request):
     # 如果form通过POST方法发送数据
     if request.method == 'POST':
-        # 接受request.POST参数构造form类的实例
+        # 接收request.POST参数构造form类的实例
         username = request.POST.get('username')
         password = request.POST.get('password')
         typeOfUser = request.POST.get('typeOfUser')

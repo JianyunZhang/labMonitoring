@@ -7,5 +7,6 @@ urlpatterns = [
     # 导入camera app路由路径
     path('control/', views.control),
     path('photo/', views.photo),
-    path('detection/', views.detection)
+    path('detection/', views.detection),
+    path('camera-edit/', views.camera_edit),
 ]
