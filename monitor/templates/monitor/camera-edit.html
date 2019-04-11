@@ -22,14 +22,14 @@
   
   <body>
     <div class="x-body">
-        <form action="/monitor/camera-edit/?id={{camera_dict.id }}" method="POST" class="layui-form">
+        <form action="/monitor/camera-edit/?id={{ camera_dict.id }}" method="POST" class="layui-form">
           {% csrf_token %}
           <div class="layui-form-item">
               <label for="id" class="layui-form-label">
                   <span class="x-red">*</span>ID
               </label>
               <div class="layui-input-inline">
-                  <input type="text" value="{{ camera_dict.id }}" disabled id="id" name="id" class="layui-input">
+                  <input type="text" value="{{ camera_dict.id }}" disabled id="camera_id" name="camera_id" class="layui-input">
               </div>
               <div class="layui-form-mid layui-word-aux">
                   摄像头序号
@@ -38,7 +38,7 @@
 
           <div class="layui-form-item">
               <label for="name" class="layui-form-label">
-                  名称
+                  摄像头名称
               </label>
               <div class="layui-input-inline">
                   <input type="text" value="{{ camera_dict.name }}" id="name" name="name" class="layui-input">
@@ -50,7 +50,7 @@
 
           <div class="layui-form-item">
               <label for="location" class="layui-form-label">
-                  位置
+                  安装位置
               </label>
               <div class="layui-input-inline">
                   <input type="text" value="{{ camera_dict.location }}" id="location" name="location" class="layui-input">
@@ -63,8 +63,8 @@
           <div class="layui-form-item">
               <label class="layui-form-label"><span class="x-red">*</span>工作状态</label>
               <div class="layui-input-block">
-                  <input type="radio" name="is_working" value="开启" title="开启" {% if camera_dict.is_working == True %}checked{% endif %}/>
-                  <input type="radio" name="is_working" value="关闭" title="关闭" {% if camera_dict.is_working == False %}checked{% endif %}/>
+                  <input type="radio" name="is_working" value="开启" title="开启" {% if camera_dict.is_working is True %}checked{% endif %}/>
+                  <input type="radio" name="is_working" value="关闭" title="关闭" {% if camera_dict.is_working is False %}checked{% endif %}/>
               </div>
           </div>
 
@@ -72,7 +72,6 @@
               <label for="L_repass" class="layui-form-label">
               </label>
               <input type="submit" name="submit" id="submit" class="layui-btn" lay-filter="submit" lay-submit="" value="确认修改"/>
-              <button class="layui-btn layui-btn-danger" onclick="var index = parent.layer.getFrameIndex(window.name);parent.layer.close(index);">关闭页面</button>
           </div>
       </form>
     </div>

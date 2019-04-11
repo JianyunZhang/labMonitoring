@@ -36,8 +36,9 @@
             <th width="30">序号</th>
             <th width="100">摄像头名称</th>
             <th>位置</th>
-            <th width="50">状态</th>
-            <th width="70">操作</th>
+            <th width="100">自动拍照功能</th>
+            <th width="70">手动拍照</th>
+            <th width="70">设置</th>
         </thead>
         <tbody class="x-cate">
         {% for item in camera_data %}
@@ -53,13 +54,19 @@
             </td>
             <td>
                 {% if item.is_working == True %}
-                    <span class="layui-btn layui-btn-normal" disabled>已启用</span>
+                    <span class="layui-btn layui-btn-normal" disabled>自动拍照已启用</span>
                 {% endif %}
                 {% if item.is_working == False %}
-                    <span class="layui-btn layui-btn-danger" disabled>已停用</span>
+                    <span class="layui-btn layui-btn-danger" disabled>自动拍照已停用</span>
                 {% endif %}
             </td>
             <td class="td-manage">
+                 <form action="/monitor/control/?id={{ item.id }}" method="post" class="layui-form">
+                    {% csrf_token %}
+                     <input type="submit" value="手动拍照" class="layui-btn layui-btn-normal"/>
+                </form>
+            </td>
+            <td>
               <button class="layui-btn layui-btn layui-btn-xs"  onclick="x_admin_show('修改摄像头信息','/monitor/camera-edit?id={{ item.id }}')" ><i class="layui-icon">&#xe642;</i>修改信息</button>
             </td>
           </tr>

@@ -34,11 +34,35 @@ def get_camera_list():
             Camera.objects.filter(id=num).delete()
 
 
+# 指定摄像头拍照并将照片存入数据库
+@shared_task
+def photo_capture_by_id(cam_id):
+    # 从数据库中获取摄像头列表
+    camera_list = list(Camera.objects.all().order_by('id'))
+    print('camera_list:', camera_list)
+    # 检查摄像头列表中相机的状态
+    for camera in camera_list:
+        # 如果工作状况设置为是，则进行拍照操作
+        if camera.id is cam_id:
+            # 设置摄像头拍照参数
+            cam = Device(devnum=int(camera.id), showVideoWindow=0)
+            cam.setResolution(640, 480)
+            # 获取当前时间
+            now_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+            print('\n正在拍摄照片')
+            # 拍摄照片，保存到指定目录
+            url = os.path.join(BASE_DIR, 'monitor', 'static', 'monitor', 'photo', 'cam' + camera.id + '-' + now_time + '.jpg')
+            print('摄像头id=', camera.id, '照片存储路径', url)
+            cam.saveSnapshot(url, timestamp=3, boldfont=1, quality=50)
+            # 将照片信息存入数据库
+            Photo.objects.create(time=now_time, camera_id=camera.id, location=camera.location, is_processed=False, url=url)
+
+
 # 控制设置为启用的摄像头拍照
 @shared_task
 def photo_capture():
     # 从数据库中获取摄像头列表
-    camera_list = list(Camera.objects.all())
+    camera_list = list(Camera.objects.all().order_by('id'))
     print('camera_list:', camera_list)
     # 检查摄像头列表中相机的状态
     for camera in camera_list:
@@ -62,7 +86,7 @@ def photo_capture():
 @shared_task
 def photo_detection():
     # 从数据库中获取照片列表
-    photo_list = list(Photo.objects.all())
+    photo_list = list(Photo.objects.all().order_by('-time'))
     print('photo_list', photo_list)
 
     # 设置预测模型，有以下三种
@@ -72,12 +96,12 @@ def photo_detection():
     # detector.setModelPath(os.path.join(BASE_DIR, 'monitor', 'static', 'monitor', 'CNN', 'yolo-tiny.h5'))
 
     # YOLO
-    detector.setModelTypeAsYOLOv3()
-    detector.setModelPath(os.path.join(BASE_DIR, 'monitor', 'static', 'monitor', 'CNN', 'yolo.h5'))
+    # detector.setModelTypeAsYOLOv3()
+    # detector.setModelPath(os.path.join(BASE_DIR, 'monitor', 'static', 'monitor', 'CNN', 'yolo.h5'))
 
     # RetinaNet
-    # detector.setModelTypeAsRetinaNet()
-    # detector.setModelPath(os.path.join(BASE_DIR, 'monitor', 'static', 'monitor', 'CNN', 'resnet50_coco_best_v2.0.1.h5'))
+    detector.setModelTypeAsRetinaNet()
+    detector.setModelPath(os.path.join(BASE_DIR, 'monitor', 'static', 'monitor', 'CNN', 'resnet50_coco_best_v2.0.1.h5'))
 
     # 加载模型
     detector.loadModel()
