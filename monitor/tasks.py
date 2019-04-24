@@ -36,14 +36,14 @@ def get_camera_list():
 
 # 指定摄像头拍照并将照片存入数据库
 @shared_task
-def photo_capture_by_id(cam_id):
+def photo_capture_by_id(camera_id):
     # 从数据库中获取摄像头列表
     camera_list = list(Camera.objects.all().order_by('id'))
-    print('camera_list:', camera_list)
     # 检查摄像头列表中相机的状态
     for camera in camera_list:
         # 如果工作状况设置为是，则进行拍照操作
-        if camera.id is cam_id:
+        if camera.id is camera_id:
+            print('当前拍照的摄像头为:', camera)
             # 设置摄像头拍照参数
             cam = Device(devnum=int(camera.id), showVideoWindow=0)
             cam.setResolution(640, 480)

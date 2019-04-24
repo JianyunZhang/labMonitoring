@@ -8,6 +8,8 @@ urlpatterns = [
     path('', views.index),
     path('login/', views.login),
     path('register/', views.register),
-    path('student-index/', views.student_index),
-    path('welcome/', views.welcome),
+    path('admin-home/', views.admin_home),  # 管理员功能页面
+    path('admin-check-self/', views.admin_check_self),
+    path('admin-welcome/', views.admin_welcome),
+
 ]

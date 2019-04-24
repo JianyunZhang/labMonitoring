@@ -15,32 +15,36 @@ import datetime
 # 第一个参数必须是request,该参数封装了用户请求的所有内容
 def index(request):
     # render方法接收request作为第一个参数，要渲染的页面为第二个参数，以及需要传递给页面的数据字典作为第三个参数（可以为空）
-    return render(request, 'login/index.html')
+    if request.method == 'GET':
+        return render(request, 'login/index.html')
 
 
-# 登录界面
+# 登录界面login/login.html
 def login(request):
+    # 如果通过GET方法请求该URL
+    if request.method == 'GET':
+        return render(request, 'login/login.html')
     # 如果form通过POST方法发送数据
-    if request.method == 'POST':
+    elif request.method == 'POST':
         # 接收request.POST参数构造form类的实例
         username = request.POST.get('username')
         password = request.POST.get('password')
-        typeOfUser = request.POST.get('typeOfUser')
+        user_type = request.POST.get('typeOfUser')  # 接收的用户种类
 
         # 若登录账号种类为学生
-        if typeOfUser == 'student':
+        if user_type == 'student':
             try:
                 student = Student.objects.get(id=username)
-                if student.password == password:
+                if student.password == password:    # 如果账号密码正确
                     user = json.dumps(student, default=lambda obj: obj.__dict__)  # 将学生序列化为JSON(str)
                     user = json.loads(user)   # 将学生反序列化为字典
                     request.session['user'] = user  # 将用户信息传入session，传入前需要序列化为JSON
-                    return render(request, 'login/student-index.html')    # 跳转到学生主界面
+                    return render(request, 'login/student-home.html')    # 跳转到学生主界面
             except Exception as e:  # 若捕获异常则停止执行
                 print('Error:', e)
 
         # 若登录账号种类为教师
-        if typeOfUser == 'teacher':
+        if user_type == 'teacher':
             try:
                 teacher = Teacher.objects.get(id=username)
                 if teacher.password == password:
@@ -52,24 +56,25 @@ def login(request):
                 print('Error:', e)
 
         # 若登录账号种类为管理员
-        if typeOfUser == 'admin':
+        if user_type == 'admin':
             try:
                 admin = Admin.objects.get(id=username)
                 if admin.password == password:
-                    user = json.dumps(admin, default=lambda obj: obj.__dict__)  # 将管理员序列化为JSON
-                    user = json.loads(user)  # 将管理员反序列化为字典
-                    request.session['user'] = user  # 将字典传入session
-                    return render(request, 'login/admin-index.html')  # 跳转到教师主界面
+                    admin = json.dumps(admin, default=lambda obj: obj.__dict__)  # 将管理员序列化为JSON
+                    admin = json.loads(admin)  # 将管理员反序列化为字典
+                    request.session['admin'] = admin  # 将字典传入session
+                    return render(request, 'login/admin-home.html')  # 跳转到教师主界面
             except Exception as e:  # 若捕获异常则停止执行
                 print('Error:', e)
 
-    return render(request, 'login/login.html')
 
-
-# 注册页面
+# 注册页面login/register.html
 def register(request):
+    # 如果通过GET方法请求该URL
+    if request.method == 'GET':
+        return render(request, 'login/register.html')
     # 如果form通过POST方法发送数据
-    if request.method == 'POST':
+    elif request.method == 'POST':
         # 接受request.POST参数构造form类的实例
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -93,13 +98,25 @@ def register(request):
                 Teacher.objects.create(id=username, password=password)
                 return render(request, 'login/login.html')
 
-    return render(request, 'login/register.html')
+
+# 管理员功能页面login/admin-home.html
+def admin_home(request):
+    if request.method == 'GET':
+        return render(request, 'login/admin-home.html')
 
 
-def student_index(request):
-    return render(request, 'login/student-index.html')
+# 管理员查看个人账户信息页面login/admin-check-self.html
+def admin_check_self(request):
+    if request.method == 'GET':
+        return render(request, 'login/admin-check-self.html')
 
 
-def welcome(request):
-    return render(request, 'login/welcome.html')
+# 管理员欢迎页面login/welcome.html
+def admin_welcome(request):
+    if request.method == 'GET':
+        return render(request, 'login/admin-welcome.html')
+
+
+def student_home(request):
+    return render(request, 'login/student-home.html')
 

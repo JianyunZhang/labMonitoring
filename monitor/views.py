@@ -17,7 +17,7 @@ def control(request):
     if request.method == 'POST':
         # 获取传入的摄像机id
         camera_id = request.GET.get('id')
-        photo_capture_by_id(camera_id)
+        photo_capture_by_id.delay(camera_id)
 
     # 获取相机列表
     camera_list = list(Camera.objects.all().order_by('id'))
