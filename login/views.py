@@ -111,10 +111,16 @@ def admin_check_self(request):
         return render(request, 'login/admin-check-self.html')
 
 
-# 管理员欢迎页面login/welcome.html
+# 管理员欢迎页面login/admin-welcome.html
 def admin_welcome(request):
     if request.method == 'GET':
         return render(request, 'login/admin-welcome.html')
+
+
+# 管理员查看学生列表login/admin-list-student.html
+def admin_list_student(request):
+    if request.method == 'GET':
+        return render(request, 'login/admin-list-student.html')
 
 
 def student_home(request):
