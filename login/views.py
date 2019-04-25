@@ -1,9 +1,13 @@
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+from django.contrib import auth
 from django.shortcuts import redirect
 from django import forms
 from monitor.tasks import get_camera_list
 from login import models
 from login.models import *
+
 import json
 from django.core import serializers
 from json import *
@@ -93,9 +97,11 @@ def register(request):
         if typeOfUser == 'teacher':
             try:
                 Teacher.objects.get(id=username)
+                print('该教师账号已存在，无法重新注册！')
                 return render(request, 'login/register.html')
             except Exception as e:
                 Teacher.objects.create(id=username, password=password)
+                print('教师账号注册成功！')
                 return render(request, 'login/login.html')
 
 
@@ -106,9 +112,55 @@ def admin_home(request):
 
 
 # 管理员查看个人账户信息页面login/admin-check-self.html
+# @csrf_exempt
 def admin_check_self(request):
     if request.method == 'GET':
         return render(request, 'login/admin-check-self.html')
+    elif request.method == 'POST':
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        admin = request.POST.get('admin')
+        # 将管理员反序列化为字典
+        admin = json.loads(admin)
+        print('收到上传的内容：', admin)
+        # 将上传结果保存到数据库
+        try:
+            Admin.objects.filter(id=admin['id']).update(password=admin['password'], name=admin['name'], email=admin['email'], phone=admin['phone'], department=admin['department'])
+            print('管理员个人信息修改成功！id=', admin['id'])
+            request.session['admin'] = admin  # 将修改后的admin字典传入session
+        except Exception as e:
+            print('管理员个人信息修改失败！id=', admin['id'])
+            print(e)
+        return HttpResponse()
+
+
+# 管理员修改账号密码页面login/admin-change-password.html
+# @csrf_exempt
+def admin_change_password(request):
+    if request.method == 'GET':
+        return render(request, 'login/admin-change-password.html')
+    elif request.method == 'POST':
+        # 获取AJAX上传的数据，获取对象为JSON
+        password = request.POST.get('password')
+        # 将密码反序列化为字典
+        password = json.loads(password)
+        print('收到上传的内容：', password)
+
+        # 从session中读出目前的用户信息
+        admin = request.session['admin']
+        # 校验密码
+        if admin['password'] == password['pre_password']:    # 若原密码匹配，将上传结果保存到数据库
+            try:
+                Admin.objects.filter(id=admin.id).update(password=password['new_password'])
+                admin['password'] = password['new_password']
+                print('管理员密码修改成功！id=', admin['id'])
+                request.session['admin'] = admin  # 将修改后的admin字典传入session
+            except Exception as e:
+                print('管理员密码修改失败！id=', admin['id'])
+                print(e)
+            return HttpResponse()
+        elif admin['password'] != password['pre_password']:  # 若原密码不匹配，则修改失败
+            # 传文本给前端Ajax
+            return HttpResponse('原密码错误，修改失败！')
 
 
 # 管理员欢迎页面login/admin-welcome.html

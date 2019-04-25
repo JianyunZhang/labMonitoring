@@ -19,7 +19,7 @@
 <body>
     <!-- 顶部开始 -->
     <div class="container">
-        <div class="logo"><a href="/admin-home">管理员功能页面</a></div>
+        <div class="logo"><a href="/admin-home">管理员功能面板</a></div>
         <div class="left_open">
             <i title="展开功能栏" class="iconfont">&#xe699;</i>
         </div>
@@ -28,7 +28,8 @@
             <a href="javascript:;">{{ request.session.admin.name }}</a>
             <!-- 二级菜单 -->
             <dl class="layui-nav-child">
-              <dd><a onclick="x_admin_show('个人信息','/admin-check-self')">个人信息</a></dd>
+              <dd><a onclick="x_admin_show('管理员个人信息','/admin-check-self',500,400)">个人信息</a></dd>
+              <dd><a onclick="x_admin_show('修改密码','/admin-change-password',500,300)">修改密码</a></dd>
               <dd><a href="/login">退出</a></dd>
             </dl>
           </li>
