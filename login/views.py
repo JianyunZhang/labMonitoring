@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.contrib import auth
 from django.shortcuts import redirect
 from django import forms
@@ -154,13 +155,16 @@ def admin_change_password(request):
                 admin['password'] = password['new_password']
                 print('管理员密码修改成功！id=', admin['id'])
                 request.session['admin'] = admin  # 将修改后的admin字典传入session
+                return JsonResponse({"msg": "success"})
             except Exception as e:
                 print('管理员密码修改失败！id=', admin['id'])
                 print(e)
-            return HttpResponse()
+                # 如果这样返回，两边都不需要进行json的序列化与反序列化，ajax接受的直接是一个对象
+                return JsonResponse({"msg": "failed"})
         elif admin['password'] != password['pre_password']:  # 若原密码不匹配，则修改失败
             # 传文本给前端Ajax
-            return HttpResponse('原密码错误，修改失败！')
+            print('密码不匹配，修改失败！')
+            return JsonResponse({"msg": "failed"})
 
 
 # 管理员欢迎页面login/admin-welcome.html
