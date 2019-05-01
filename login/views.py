@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.http import JsonResponse
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, InvalidPage
 from django.contrib import auth
 from django.shortcuts import redirect
 from django import forms
@@ -151,13 +152,13 @@ def admin_change_password(request):
         # 校验密码
         if admin['password'] == password['pre_password']:    # 若原密码匹配，将上传结果保存到数据库
             try:
-                Admin.objects.filter(id=admin.id).update(password=password['new_password'])
+                Admin.objects.filter(id=admin['id']).update(password=password['new_password'])
                 admin['password'] = password['new_password']
-                print('管理员密码修改成功！id=', admin['id'])
+                print('管理员密码修改成功！id =', admin['id'])
                 request.session['admin'] = admin  # 将修改后的admin字典传入session
                 return JsonResponse({"msg": "success"})
             except Exception as e:
-                print('管理员密码修改失败！id=', admin['id'])
+                print('管理员密码修改失败！id =', admin['id'])
                 print(e)
                 # 如果这样返回，两边都不需要进行json的序列化与反序列化，ajax接受的直接是一个对象
                 return JsonResponse({"msg": "failed"})
@@ -176,7 +177,65 @@ def admin_welcome(request):
 # 管理员查看学生列表login/admin-list-student.html
 def admin_list_student(request):
     if request.method == 'GET':
-        return render(request, 'login/admin-list-student.html')
+        if 'search' in request.GET:
+            # 查询操作，按搜索框输入的id，从数据库中模糊查询，查出学生列表
+            student_id = request.GET.get('student_id')
+            try:
+                student_list = Student.objects.filter(id__contains=student_id)
+                print('查找结果：', student_list)
+            except Exception as e:
+                print('没有查询到结果！id =', student_id)
+                print(e)
+                student_list = []
+
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(student_list, 5)
+            page = request.GET.get('page')
+            try:
+                student_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                student_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/admin-list-student.html', {"student_list": student_list})
+        else:
+            # 从数据库中查询学生列表
+            student_list = Student.objects.all()
+            print('当前学生列表：', student_list)
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(student_list, 5)
+            # 获取 url 后面的 page 参数的值, 首页不显示 page 参数, 默认值是 1
+            page = request.GET.get('page')
+            try:
+                student_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                student_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/admin-list-student.html', {"student_list": student_list})
+
+
+# 管理员查看学生详情login/admin-check-student.html
+def admin_check_student(request):
+    if request.method == 'GET':
+        student_id = request.GET.get('id')
+        # 从数据库中查询该学生的数据
+        student = Student.objects.get(id=student_id)
+        # 将学生类转换为字典
+        student_dict = json.loads(json.dumps(student, default=lambda obj: obj.__dict__))
+        # 打印选中的学生数据
+        print(student_dict)
+        return render(request, 'login/admin-check-student.html', {'student_dict': student_dict})
 
 
 def student_home(request):

@@ -26,14 +26,14 @@
         <a _href="/admin-welcome/">首页</a>
         <a href=""><cite>查看学生列表</cite></a>
       </span>
-      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="/admin-list-student/" title="刷新">
         <i class="layui-icon" style="line-height:30px">ဂ</i></a>
     </div>
     <div class="x-body">
       <div class="layui-row">
-        <form class="layui-form layui-col-md12 x-so">
-          <input type="text" name="username"  placeholder="请输入学号" autocomplete="off" class="layui-input">
-          <button class="layui-btn"  lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
+        <form class="layui-form layui-col-md12 x-so" method="get" action="/admin-list-student/">
+          <input type="text" name="student_id" id="student_id" placeholder="请输入学号" autocomplete="off" class="layui-input">
+          <button class="layui-btn"  lay-submit="" lay-filter="sreach" name="search" type="submit"><i class="layui-icon">&#xe615;</i></button>
         </form>
       </div>
       <xblock>
@@ -56,17 +56,18 @@
             </tr>
         </thead>
         <tbody>
+          {% for student in student_list %}
           <tr>
-            <td>15205211</td>
-            <td>张三</td>
-            <td>男</td>
-            <td>zhangsan@qq.com</td>
-            <td>13700000000</td>
-            <td>软件学院</td>
-            <td>软件工程</td>
-            <td>152011</td>
+            <td>{{ student.id }}</td>
+            <td>{{ student.name }}</td>
+            <td>{% if student.sex == 'male'%}男{% endif %} {% if student.sex == 'female'%}女{% endif %}</td>
+            <td>{{ student.email }}</td>
+            <td>{{ student.phone }}</td>
+            <td>{{ student.school }}</td>
+            <td>{{ student.specialty }}</td>
+            <td>{{ student.class_no }}</td>
             <td class="td-manage">
-              <a title="查看"  onclick="x_admin_show('编辑','order-view.html')" href="javascript:;">
+              <a title="编辑"  onclick="x_admin_show('编辑','/admin-check-student?id={{ student.id }}')" href="javascript:;">
                 <i class="layui-icon">&#xe63c;</i>
               </a>
               <a title="删除" onclick="member_del(this,'要删除的id')" href="javascript:;">
@@ -74,15 +75,20 @@
               </a>
             </td>
           </tr>
+          {% endfor %}
         </tbody>
       </table>
       <div class="page">
         <div>
-          <a class="prev" href="">&lt;&lt;</a>
-          <span class="current">1</span>
-          <a class="num" href="">2</a>
-          <a class="num" href="">3</a>
-          <a class="next" href="">&gt;&gt;</a>
+          {% if student_list.has_previous %}
+             <a class='prev' href="?page={{ student_list.previous_page_number }}">上一页</a>
+          {% endif %}
+          <span class="current">
+              第 {{ student_list.number }} 页，总 {{ student_list.paginator.num_pages }} 页
+          </span>
+          {% if student_list.has_next %}
+             <a class='next' href="?page={{ student_list.next_page_number }}">下一页</a>
+          {% endif %}
         </div>
       </div>
 
