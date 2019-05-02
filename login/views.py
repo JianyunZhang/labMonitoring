@@ -178,10 +178,11 @@ def admin_welcome(request):
 def admin_list_student(request):
     if request.method == 'GET':
         if 'search' in request.GET:
-            # 查询操作，按搜索框输入的id，从数据库中模糊查询，查出学生列表
+            # 查询操作，取出搜索框输入的id
             student_id = request.GET.get('student_id')
             try:
-                student_list = Student.objects.filter(id__contains=student_id)
+                # 从数据库中模糊查询，查出学生列表，按照班级号排序
+                student_list = Student.objects.filter(id__contains=student_id).order_by('class_no')
                 print('查找结果：', student_list)
             except Exception as e:
                 print('没有查询到结果！id =', student_id)
@@ -205,7 +206,7 @@ def admin_list_student(request):
             return render(request, 'login/admin-list-student.html', {"student_list": student_list})
         else:
             # 从数据库中查询学生列表
-            student_list = Student.objects.all()
+            student_list = Student.objects.all().order_by('class_no')
             print('当前学生列表：', student_list)
             # 分页操作
             # 将数据按照规定每页显示 5 条, 进行分割
@@ -223,6 +224,13 @@ def admin_list_student(request):
                 return HttpResponse('找不到页面的内容')
             # 将结果返回到页面
             return render(request, 'login/admin-list-student.html', {"student_list": student_list})
+    elif request.method == 'POST':  # 删除学生操作
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        student_id = request.POST.get('id')
+        # 删除数据库中的记录
+        Student.objects.filter(id=student_id).delete()
+        print('删除学生成功！id =', student_id)
+        return HttpResponse('学生信息删除成功')
 
 
 # 管理员查看学生详情login/admin-check-student.html
@@ -236,6 +244,20 @@ def admin_check_student(request):
         # 打印选中的学生数据
         print(student_dict)
         return render(request, 'login/admin-check-student.html', {'student_dict': student_dict})
+    elif request.method == 'POST':
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        student = request.POST.get('student')
+        # 将学生信息反序列化为字典
+        student = json.loads(student)
+        print('收到上传的内容：', student)
+        # 将上传结果保存到数据库
+        try:
+            Student.objects.filter(id=student['id']).update(name=student['name'], email=student['email'], phone=student['phone'], school=student['school'], specialty=student['specialty'], class_no=student['class_no'])
+            print('学生信息修改成功！id=', student['id'])
+        except Exception as e:
+            print('学生信息修改失败！id=', student['id'])
+            print(e)
+        return HttpResponse()
 
 
 def student_home(request):
