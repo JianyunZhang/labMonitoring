@@ -178,11 +178,13 @@ def admin_welcome(request):
 def admin_list_student(request):
     if request.method == 'GET':
         if 'search' in request.GET:
-            # 查询操作，取出搜索框输入的id
+            # 查询操作，取出搜索框输入的id，姓名
             student_id = request.GET.get('student_id')
+            student_class_no = request.GET.get('student_class_no')
+            student_name = request.GET.get('student_name')
             try:
                 # 从数据库中模糊查询，查出学生列表，按照班级号排序
-                student_list = Student.objects.filter(id__contains=student_id).order_by('class_no')
+                student_list = Student.objects.filter(id__contains=student_id, class_no__contains=student_class_no, name__contains=student_name).order_by('class_no')
                 print('查找结果：', student_list)
             except Exception as e:
                 print('没有查询到结果！id =', student_id)

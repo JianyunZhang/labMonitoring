@@ -26,21 +26,25 @@
         <a _href="/admin-welcome/">首页</a>
         <a href=""><cite>查看学生列表</cite></a>
       </span>
-      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="/admin-list-student/" title="刷新">
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="?page={{ student_list.number }}" title="刷新">
         <i class="layui-icon" style="line-height:30px">ဂ</i></a>
     </div>
     <div class="x-body">
       <div class="layui-row">
         <form class="layui-form layui-col-md12 x-so" method="get" action="/admin-list-student/">
-          <input type="text" name="student_id" id="student_id" placeholder="请输入学号" autocomplete="off" class="layui-input">
+          <input type="text" name="student_id" id="student_id" placeholder="请输入学号" class="layui-input">
+          <input type="text" name="student_class_no" id="student_class_no" placeholder="请输入班级" class="layui-input">
+          <input type="text" name="student_name" id="student_id" placeholder="请输入姓名" class="layui-input">
           <button class="layui-btn"  lay-submit="" lay-filter="sreach" name="search" type="submit"><i class="layui-icon">&#xe615;</i></button>
         </form>
       </div>
+    <!--
       <xblock>
-        <!--<button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>-->
+        <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
         <button class="layui-btn" onclick="x_admin_show('添加用户','./order-add.html')"><i class="layui-icon"></i>添加</button>
         <span class="x-right" style="line-height:40px">共有数据：88 条</span>
       </xblock>
+     -->
       <table class="layui-table">
         <thead>
           <tr>
@@ -67,8 +71,8 @@
             <td>{{ student.specialty }}</td>
             <td>{{ student.class_no }}</td>
             <td class="td-manage">
-              <a title="编辑"  onclick="x_admin_show('编辑','/admin-check-student?id={{ student.id }}')" href="javascript:;">
-                <i class="layui-icon">&#xe63c;</i>
+              <a title="编辑"  onclick="x_admin_show('编辑','/admin-check-student?id={{ student.id }}', 500, 520)" href="javascript:;">
+                <i class="layui-icon">&#xe642;</i>
               </a>
               <a title="删除" onclick="member_del(this,'{{ student.id }}')" href="javascript:;">
                 <i class="layui-icon">&#xe640;</i>
@@ -78,17 +82,36 @@
           {% endfor %}
         </tbody>
       </table>
+    <!--显示分页按钮-->
       <div class="page">
         <div>
-          {% if student_list.has_previous %}
-             <a class='prev' href="?page={{ student_list.previous_page_number }}">上一页</a>
-          {% endif %}
-          <span class="current">
-              第 {{ student_list.number }} 页，总 {{ student_list.paginator.num_pages }} 页
-          </span>
-          {% if student_list.has_next %}
-             <a class='next' href="?page={{ student_list.next_page_number }}">下一页</a>
-          {% endif %}
+        <!--上一页-->
+        {% if student_list.has_previous %}
+          <a class='prev' href="?page={{ student_list.previous_page_number }}">上一页</a>
+        {% endif %}
+
+        <!--左边的页码-->
+        {% for left_page in left_pages %}
+            <a class='num' href="?page={{ left_page }}">{{ left_page }}</a>
+        {% endfor %}
+
+        <!--中间的页码-->
+        <span class="current" href="?page={{ student_list.number }}">
+           第 {{ student_list.number }} 页，总 {{ student_list.paginator.num_pages }} 页
+        </span>
+
+        <!--右边的页码-->
+        {% for right_page in right_page %}
+            <a class="num" href="?page={{ right_page }}">{{ right_page }}</a>
+        {% endfor %}
+
+        <!--下一页-->
+        {% if student_list.has_next %}
+          <a class='next' href="?page={{ student_list.next_page_number }}">
+              下一页
+          </a>
+        {% endif %}
+
         </div>
       </div>
 
@@ -163,7 +186,7 @@
           });
       }
 
-      /*用户-删除*/
+      /*按id删除学生*/
       function member_del(obj,id){
           layer.confirm('确认要删除吗？',function(index){
               //发异步删除数据

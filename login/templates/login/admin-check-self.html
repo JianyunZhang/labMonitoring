@@ -156,9 +156,9 @@
             // 获得frame索引
             var index = parent.layer.getFrameIndex(window.name);
             //刷新当前页面
-            window.location.reload()
+            //window.location.reload()
             //关闭当前frame
-            //parent.layer.close(index);
+            parent.layer.close(index);
           });
           return false;
         });
