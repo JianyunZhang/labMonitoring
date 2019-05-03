@@ -262,6 +262,180 @@ def admin_check_student(request):
         return HttpResponse()
 
 
+# 管理员查看教师列表login/admin-list-teacher.html
+def admin_list_teacher(request):
+    if request.method == 'GET':
+        if 'search' in request.GET:
+            # 查询操作，取出搜索框输入的id，姓名
+            teacher_id = request.GET.get('teacher_id')
+            teacher_name = request.GET.get('teacher_name')
+            try:
+                # 从数据库中模糊查询，查出教师列表，按照班级号排序
+                teacher_list = Teacher.objects.filter(id__contains=teacher_id, name__contains=teacher_name).order_by('school')
+                print('查找结果：', teacher_list)
+            except Exception as e:
+                print('没有查询到结果！id =', teacher_id)
+                print(e)
+                teacher_list = []
+
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(teacher_list, 5)
+            page = request.GET.get('page')
+            try:
+                teacher_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                teacher_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/admin-list-teacher.html', {"teacher_list": teacher_list})
+        else:
+            # 从数据库中查询教师列表
+            teacher_list = Teacher.objects.all().order_by('school')
+            print('当前教师列表：', teacher_list)
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(teacher_list, 5)
+            # 获取 url 后面的 page 参数的值, 首页不显示 page 参数, 默认值是 1
+            page = request.GET.get('page')
+            try:
+                teacher_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                teacher_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/admin-list-teacher.html', {"teacher_list": teacher_list})
+    elif request.method == 'POST':  # 删除教师操作
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        teacher_id = request.POST.get('id')
+        # 删除数据库中的记录
+        Teacher.objects.filter(id=teacher_id).delete()
+        print('删除教师成功！id =', teacher_id)
+        return HttpResponse('教师信息删除成功')
+
+
+# 管理员查看教师详情login/admin-check-teacher.html
+def admin_check_teacher(request):
+    if request.method == 'GET':
+        teacher_id = request.GET.get('id')
+        # 从数据库中查询该学生的数据
+        teacher = Teacher.objects.get(id=teacher_id)
+        # 将教师类转换为字典
+        teacher_dict = json.loads(json.dumps(teacher, default=lambda obj: obj.__dict__))
+        # 打印选中的教师数据
+        print(teacher_dict)
+        return render(request, 'login/admin-check-teacher.html', {'teacher_dict': teacher_dict})
+    elif request.method == 'POST':
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        teacher = request.POST.get('teacher')
+        # 将教师信息反序列化为字典
+        teacher = json.loads(teacher)
+        print('收到上传的内容：', teacher)
+        # 将上传结果保存到数据库
+        try:
+            Teacher.objects.filter(id=teacher['id']).update(name=teacher['name'], email=teacher['email'], phone=teacher['phone'], school=teacher['school'], department=teacher['department'], title=teacher['title'])
+            print('教师信息修改成功！id=', teacher['id'])
+        except Exception as e:
+            print('教师信息修改失败！id=', teacher['id'])
+            print(e)
+        return HttpResponse()
+
+
+# 管理员查看管理员列表login/admin-list-admin.html
+def admin_list_admin(request):
+    if request.method == 'GET':
+        if 'search' in request.GET:
+            # 查询操作，取出搜索框输入的id，姓名
+            admin_id = request.GET.get('admin_id')
+            admin_name = request.GET.get('admin_name')
+            try:
+                # 从数据库中模糊查询，查出学生列表，按照班级号排序
+                admin_list = Admin.objects.filter(id__contains=admin_id, name__contains=admin_name).order_by('department')
+                print('查找结果：', admin_list)
+            except Exception as e:
+                print('没有查询到结果！id =', admin_id)
+                print(e)
+                admin_list = []
+
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(admin_list, 5)
+            page = request.GET.get('page')
+            try:
+                admin_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                admin_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/admin-list-admin.html', {"admin_list": admin_list})
+        else:
+            # 从数据库中查询教师列表
+            admin_list = Admin.objects.all().order_by('department')
+            print('当前管理员列表：', admin_list)
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(admin_list, 5)
+            # 获取 url 后面的 page 参数的值, 首页不显示 page 参数, 默认值是 1
+            page = request.GET.get('page')
+            try:
+                admin_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                admin_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/admin-list-admin.html', {"admin_list": admin_list})
+
+
+# 管理员查看管理员详情login/admin-check-admin.html
+def admin_check_admin(request):
+    if request.method == 'GET':
+        admin_id = request.GET.get('id')
+        # 从数据库中查询该管理员的数据
+        admin = Admin.objects.get(id=admin_id)
+        # 将管理员类转换为字典
+        admin_dict = json.loads(json.dumps(admin, default=lambda obj: obj.__dict__))
+        # 打印选中的管理员数据
+        print(admin_dict)
+        return render(request, 'login/admin-check-admin.html', {'admin_dict': admin_dict})
+
+
+# 管理员添加管理员login/admin-add-admin.html
+def admin_add_admin(request):
+    if request.method == 'GET':
+        return render(request, 'login/admin-add-admin.html')
+    if request.method == 'POST':    # 接收AJAX响应，添加管理员账号
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        admin = request.POST.get('admin')
+        # 将管理员反序列化为字典
+        admin = json.loads(admin)
+        print('收到上传的内容：', admin)
+        # 将上传结果保存到数据库
+        try:
+            Admin.objects.create(id=admin['id'], password=admin['password'], name=admin['name'], email=admin['email'], phone=admin['phone'], department=admin['department'])
+            print('管理员账号创建成功！id =', admin['id'])
+            return JsonResponse({"msg": "success"})
+        except Exception as e:
+            print('管理员个人信息修改失败！id =', admin['id'])
+            print(e)
+        return JsonResponse({"msg": "failed"})
+
+
 def student_home(request):
     return render(request, 'login/student-home.html')
 

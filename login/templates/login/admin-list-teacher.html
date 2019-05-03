@@ -1,10 +1,212 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html class="x-admin-sm">
 
-</body>
+  <head>
+    <meta charset="UTF-8">
+    <title>管理员功能页面-查看教师列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" href="/static/common/css/font.css">
+    <link rel="stylesheet" href="/static/common/css/xadmin.css">
+    <script type="text/javascript" src="/static/common/js/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="/static/common/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/common/js/xadmin.js"></script>
+    <script type="text/javascript" src="/static/common/js/cookie.js"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+      <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a _href="/admin-welcome/">首页</a>
+        <a href=""><cite>查看教师列表</cite></a>
+      </span>
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="?page={{ teacher_list.number }}" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so" method="get" action="/admin-list-teacher/">
+          <input type="text" name="teacher_id" id="teacher_id" placeholder="请输入工号" class="layui-input">
+          <input type="text" name="teacher_name" id="teacher_name" placeholder="请输入姓名" class="layui-input">
+          <button class="layui-btn"  lay-submit="" lay-filter="sreach" name="search" type="submit"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+    <!--
+      <xblock>
+        <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
+        <button class="layui-btn" onclick="x_admin_show('添加用户','./order-add.html')"><i class="layui-icon"></i>添加</button>
+        <span class="x-right" style="line-height:40px">共有数据：88 条</span>
+      </xblock>
+     -->
+      <table class="layui-table">
+        <thead>
+          <tr>
+            <th>工号</th>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>邮箱</th>
+            <th>手机号码</th>
+            <th>学院</th>
+            <th>专业</th>
+            <th>职称</th>
+            <th >操作</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for teacher in teacher_list %}
+          <tr>
+            <td>{{ teacher.id }}</td>
+            <td>{{ teacher.name }}</td>
+            <td>{% if teacher.sex == 'male'%}男{% endif %} {% if teacher.sex == 'female'%}女{% endif %}</td>
+            <td>{{ teacher.email }}</td>
+            <td>{{ teacher.phone }}</td>
+            <td>{{ teacher.school }}</td>
+            <td>{{ teacher.department }}</td>
+            <td>{{ teacher.title }}</td>
+            <td class="td-manage">
+              <a title="编辑"  onclick="x_admin_show('编辑','/admin-check-teacher?id={{ teacher.id }}', 500, 520)" href="javascript:;">
+                <i class="layui-icon">&#xe642;</i>
+              </a>
+              <a title="删除" onclick="member_del(this,'{{ teacher.id }}')" href="javascript:;">
+                <i class="layui-icon">&#xe640;</i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    <!--显示分页按钮-->
+      <div class="page">
+        <div>
+        <!--上一页-->
+        {% if teacher_list.has_previous %}
+          <a class='prev' href="?page={{ teacher_list.previous_page_number }}">上一页</a>
+        {% endif %}
+
+        <!--左边的页码-->
+        {% for left_page in left_pages %}
+            <a class='num' href="?page={{ left_page }}">{{ left_page }}</a>
+        {% endfor %}
+
+        <!--中间的页码-->
+        <span class="current" href="?page={{ teacher_list.number }}">
+           第 {{ teacher_list.number }} 页，总 {{ teacher_list.paginator.num_pages }} 页
+        </span>
+
+        <!--右边的页码-->
+        {% for right_page in right_page %}
+            <a class="num" href="?page={{ right_page }}">{{ right_page }}</a>
+        {% endfor %}
+
+        <!--下一页-->
+        {% if teacher_list.has_next %}
+          <a class='next' href="?page={{ teacher_list.next_page_number }}">
+              下一页
+          </a>
+        {% endif %}
+
+        </div>
+      </div>
+
+    </div>
+    <script>
+      layui.use('laydate', function(){
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+          elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+          elem: '#end' //指定元素
+        });
+      });
+
+      // using jQuery CSRF令牌认证
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // 这些HTTP方法不要求CSRF包含
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+
+       /*用户-停用*/
+      function member_stop(obj,id){
+          layer.confirm('确认要停用吗？',function(index){
+
+              if($(obj).attr('title')=='启用'){
+
+                //发异步把用户状态进行更改
+                $(obj).attr('title','停用')
+                $(obj).find('i').html('&#xe62f;');
+
+                $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已停用');
+                layer.msg('已停用!',{icon: 5,time:1000});
+
+              }else{
+                $(obj).attr('title','启用')
+                $(obj).find('i').html('&#xe601;');
+
+                $(obj).parents("tr").find(".td-status").find('span').removeClass('layui-btn-disabled').html('已启用');
+                layer.msg('已启用!',{icon: 5,time:1000});
+              }
+
+          });
+      }
+
+      /*按id删除教师*/
+      function member_del(obj,id){
+          layer.confirm('确认要删除吗？',function(index){
+              //发异步删除数据
+              //利用jQuery.ajax()发异步，把数据提交给django
+              $.ajax({
+                  url: "/admin-list-teacher/",  //链接地址，字符串表示
+                  data: {'id': id},    //{name: 'jenny'},    //需发送到服务器的数据，GET与POST都可以，格式为{A: '...', B: '...'}
+                  type: "POST",     //"POST" 或 "GET"，请求类型
+                  dataType: "json",     //服务器响应的数据类型，字符串表示；当填写为json时，回调函数中无需再对数据反序列化为json
+                  success: function(data) {     //请求成功后，服务器回调的函数
+                      console.log(data.field);  //当前容器的全部表单字段，名值对形式：{name: value}
+                      // data = jQuery.parseJSON(data);  //dataType指明了返回数据为json类型，故不需要再反序列化
+                   }
+              });
+              // 在前端移除删除的行
+              $(obj).parents("tr").remove();
+              // 弹窗显示删除成功
+              layer.msg('删除成功!',{icon:1,time:1000});
+          });
+      }
+
+    </script>
+  </body>
 </html>

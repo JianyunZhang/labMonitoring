@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>管理员功能页面-查看学生列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" href="/static/common/css/font.css">
+    <link rel="stylesheet" href="/static/common/css/xadmin.css">
+    <script type="text/javascript" src="/static/common/js/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="/static/common/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/common/js/xadmin.js"></script>
+    <script type="text/javascript" src="/static/common/js/cookie.js"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+      <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a _href="/admin-welcome/">首页</a>
+        <a href=""><cite>查看管理员列表</cite></a>
+      </span>
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="?page={{ admin_list.number }}" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so" method="get" action="/admin-list-admin/">
+          <input type="text" name="admin_id" id="admin_id" placeholder="请输入用户名" class="layui-input">
+          <input type="text" name="admin_name" id="admin_name" placeholder="请输入姓名" class="layui-input">
+          <button class="layui-btn"  lay-submit="" lay-filter="sreach" name="search" type="submit"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <xblock>
+        <button class="layui-btn" onclick="x_admin_show('创建管理员账号','/admin-add-admin', 600, 500)"><i class="layui-icon"></i>创建管理员</button>
+      </xblock>
+      <table class="layui-table">
+        <thead>
+          <tr>
+            <th>用户名</th>
+            <th>姓名</th>
+            <th>邮箱</th>
+            <th>手机号码</th>
+            <th>所在部门</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for admin in admin_list %}
+          <tr>
+            <td>{{ admin.id }}</td>
+            <td>{{ admin.name }}</td>
+            <td>{{ admin.email }}</td>
+            <td>{{ admin.phone }}</td>
+            <td>{{ admin.department }}</td>
+            <td class="td-manage">
+              <a title="查看详情"  onclick="x_admin_show('编辑','/admin-check-admin?id={{ admin.id }}', 400, 400)" href="javascript:;">
+                <i class="layui-icon">&#xe63c;</i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    <!--显示分页按钮-->
+      <div class="page">
+        <div>
+        <!--上一页-->
+        {% if admin_list.has_previous %}
+          <a class='prev' href="?page={{ admin_list.previous_page_number }}">上一页</a>
+        {% endif %}
+
+        <!--左边的页码-->
+        {% for left_page in left_pages %}
+            <a class='num' href="?page={{ left_page }}">{{ left_page }}</a>
+        {% endfor %}
+
+        <!--中间的页码-->
+        <span class="current" href="?page={{ admin_list.number }}">
+           第 {{ admin_list.number }} 页，总 {{ admin_list.paginator.num_pages }} 页
+        </span>
+
+        <!--右边的页码-->
+        {% for right_page in right_page %}
+            <a class="num" href="?page={{ right_page }}">{{ right_page }}</a>
+        {% endfor %}
+
+        <!--下一页-->
+        {% if admin_list.has_next %}
+          <a class='next' href="?page={{ admin_list.next_page_number }}">
+              下一页
+          </a>
+        {% endif %}
+
+        </div>
+      </div>
+
+    </div>
+    <script>
+      layui.use('laydate', function(){
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+          elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+          elem: '#end' //指定元素
+        });
+      });
+    </script>
+  </body>
+</html>
