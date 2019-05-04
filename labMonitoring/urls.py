@@ -20,6 +20,8 @@ from django.urls import path, include
 urlpatterns = [
     # 设置Django后台管理界面
     path('admin/', admin.site.urls),
+    # 包含验证码模块
+    path('captcha/', include('captcha.urls')),
     # 包含login app的urls文件
     path('', include('login.urls')),
     # 包含monitor app的urls文件

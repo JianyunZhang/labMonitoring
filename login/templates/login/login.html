@@ -20,12 +20,10 @@
     <div class="login layui-anim layui-anim-up">
         <div class="message">登录学生上机实验管理系统</div>
         <div id="darkbannerwrap"></div>
-        <span class="x-red">{{message.alert}}</span>
-        <form action="/login/" method="post" class="layui-form">
-            {% csrf_token %}   <!--加入这行 -->
-            <input name="username" placeholder="用户名" type="text" lay-verify="required" class="layui-input" >
+        <form class="layui-form">
+            <input name="username" placeholder="用户名" type="text" lay-verify="required" autocomplete="off" class="layui-input" >
             <hr class="hr15">
-            <input name="password" placeholder="密码" lay-verify="required" type="password" class="layui-input">
+            <input name="password" placeholder="密码" lay-verify="required" type="password" class="layui-input" autocomplete="off">
             <hr class="hr15">
             <select name="typeOfUser">
                 <option value ="student">学生</option>
@@ -33,32 +31,97 @@
                 <option value="admin">管理员</option>
             </select>
             <hr class="hr15">
-            <input type="submit" value="登录" lay-submit lay-filter="login" style="width:100%;">
+            <input type="button" lay-submit lay-filter="submit" value="登录" lay-submit style="width:100%;">
             <hr class="hr15">
         </form>
-            <a href="/register/"><input type="button" value="注册" lay-submit lay-filter="login" style="width:100%;"></a>
+            <a href="/register/"><input type="button" value="注册" style="width:100%;"></a>
             <hr class="hr20" >
     </div>
-    <!--
-    <script>
-        $(function(){
-            layui.use('form', function(){
-              var form = layui.form;
-              // layer.msg('玩命卖萌中', function(){
-              //   //关闭后的操作
-              //   });
-              //监听提交
-              form.on('submit(login)', function(data){
-                // alert(888)
-                layer.msg(JSON.stringify(data.field),function(){
-                    //location.href='student-index.html'
-                });
-                return false;
-              });
-            });
-        })
+    <script type="text/javascript">
+      layui.use(['form','layer'], function(){
+        $ = layui.jquery;
+        var form = layui.form;
+        var layer = layui.layer;
+
+        // using jQuery CSRF令牌认证
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // 这些HTTP方法不要求CSRF包含
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+
+        //监听submit提交,submit(*)中的 * 号为事件过滤器的值，是在绑定执行提交的元素时设定的按钮属性lay-filter="*"
+        form.on('submit(submit)', function(data){
+          //console.log(data);  //data.elem, data.form, data.field的总和
+          //console.log(data.elem);   //被执行事件的元素DOM对象，一般为button对象
+          //console.log(data.form);   //被执行提交的form对象，一般在存在form标签时才会返回
+          //console.log(data.field);  //当前容器的全部表单字段，名值对形式：{name: value}
+          //console.log(JSON.stringify(data.field));  //当前容器的全部表单字段，序列化为JSON
+          //return false; //停止js脚本，阻止表单跳转。如果需要表单跳转，去掉这段即可。
+
+          //利用jQuery.ajax()发异步，把数据提交给django
+          $.ajax({
+              url: "/login/",  //链接地址，字符串表示
+              data: {'user': JSON.stringify(data.field)},    //{name: 'jenny'},    //需发送到服务器的数据，GET与POST都可以，格式为{A: '...', B: '...'}
+              type: "POST",     //"POST" 或 "GET"，请求类型
+              dataType: "json",     //服务器响应的数据类型，字符串表示；当填写为json时，回调函数中无需再对数据反序列化为json
+              success: function(data) {     //请求成功后，服务器回调的函数
+                  if(data.msg === 'admin'){
+                      console.log("管理员登录成功！");
+                      layer.alert("管理员登录成功！", {icon: 1},function () {
+                          window.location.href="/admin-home/";
+                      });
+                  }else if(data.msg === 'teacher'){
+                      console.log("教师登录成功！");
+                      layer.alert("教师登录成功！", {icon: 1},function () {
+                          window.location.href="/teacher-home/";
+                      });
+                  }else if(data.msg === 'student'){
+                      console.log("学生登录成功！");
+                      layer.alert("学生登录成功！", {icon: 1},function () {
+                           window.location.href="/student-home/";
+                      });
+                  }
+                  else{
+                      console.log("登录失败！");
+                      //弹出失败提示框，点击确定后关闭窗口
+                      layer.alert("登录失败，请确认账号或密码！", {icon: 2},function () {
+                        //刷新当前页面
+                        window.location.reload()
+                      });
+                      return false
+                  }
+               }
+          });
+          return false;
+        });
+      });
     </script>
-    -->
 
     <!-- 底部结束 -->
 </body>

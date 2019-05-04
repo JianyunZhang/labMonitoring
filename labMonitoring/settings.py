@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     # 'django_celery_beat',   # Celery计划任务模块
     'djcelery',  # Celery功能模块
     'kombu.transport.django',  # 新增kombu.transport.django是基于Django的broker
+    'captcha',  # 验证码模块
     'login',  # 登录注册模块
     'university',   # 学校信息模块
     'course',   # 课程模块

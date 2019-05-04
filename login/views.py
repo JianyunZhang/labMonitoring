@@ -8,6 +8,8 @@ from django.shortcuts import redirect
 from django import forms
 from monitor.tasks import get_camera_list
 from login import models
+from captcha.fields import CaptchaField
+from .forms import CaptchaForm
 from login.models import *
 
 import json
@@ -27,51 +29,65 @@ def index(request):
 
 # 登录界面login/login.html
 def login(request):
-    # 如果通过GET方法请求该URL
+    # 如果通过GET方法请求该URL,将界面返回
     if request.method == 'GET':
         return render(request, 'login/login.html')
     # 如果form通过POST方法发送数据
     elif request.method == 'POST':
-        # 接收request.POST参数构造form类的实例
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user_type = request.POST.get('typeOfUser')  # 接收的用户种类
+        # 获取AJAX上传的数据，获取对象为JSON
+        user = request.POST.get('user')
+        # 将密码反序列化为字典
+        user = json.loads(user)
+
+        username = user['username']
+        password = user['password']
+        user_type = user['typeOfUser']  # 接收的用户种类
+        print('收到上传内容：', username, password, user_type)
 
         # 若登录账号种类为学生
         if user_type == 'student':
             try:
                 student = Student.objects.get(id=username)
                 if student.password == password:    # 如果账号密码正确
-                    user = json.dumps(student, default=lambda obj: obj.__dict__)  # 将学生序列化为JSON(str)
-                    user = json.loads(user)   # 将学生反序列化为字典
-                    request.session['user'] = user  # 将用户信息传入session，传入前需要序列化为JSON
-                    return render(request, 'login/student-home.html')    # 跳转到学生主界面
-            except Exception as e:  # 若捕获异常则停止执行
+                    student = json.dumps(student, default=lambda obj: obj.__dict__)  # 将学生序列化为JSON(str)
+                    student = json.loads(student)   # 将学生反序列化为字典
+                    request.session['student'] = student  # 将用户信息传入session，传入前需要序列化为JSON
+                    return JsonResponse({"msg": "student"})    # 传值给AJAX，跳转到学生主界面
+                else:   # 若密码不匹配
+                    return JsonResponse({"msg": "failed"})
+            except Exception as e:  # 若捕获异常则停止执行,返回false
                 print('Error:', e)
+                return JsonResponse({"msg": "failed"})
 
         # 若登录账号种类为教师
         if user_type == 'teacher':
             try:
                 teacher = Teacher.objects.get(id=username)
                 if teacher.password == password:
-                    user = json.dumps(teacher, default=lambda obj: obj.__dict__)  # 将教师序列化为JSON
-                    user = json.loads(user)  # 将教师反序列化为字典
-                    request.session['user'] = user  # 将序列化后的用户信息传入session
-                    return render(request, 'login/teacher-index.html')  # 跳转到教师主界面
+                    teacher = json.dumps(teacher, default=lambda obj: obj.__dict__)  # 将教师序列化为JSON
+                    teacher = json.loads(teacher)  # 将教师反序列化为字典
+                    request.session['teacher'] = teacher  # 将序列化后的用户信息传入session
+                    return JsonResponse({"msg": "teacher"})  # 传值给AJAX，跳转到教师主界面
+                else:   # 若密码不匹配
+                    return JsonResponse({"msg": "failed"})
             except Exception as e:  # 若捕获异常则停止执行
                 print('Error:', e)
+                return JsonResponse({"msg": "failed"})
 
         # 若登录账号种类为管理员
         if user_type == 'admin':
             try:
                 admin = Admin.objects.get(id=username)
-                if admin.password == password:
+                if admin.password == password:  # 若密码匹配
                     admin = json.dumps(admin, default=lambda obj: obj.__dict__)  # 将管理员序列化为JSON
                     admin = json.loads(admin)  # 将管理员反序列化为字典
                     request.session['admin'] = admin  # 将字典传入session
-                    return render(request, 'login/admin-home.html')  # 跳转到教师主界面
+                    return JsonResponse({'msg': 'admin'})  # 传值给AJAX，跳转到管理员页面
+                else:   # 若密码不匹配
+                    return JsonResponse({"msg": "failed"})
             except Exception as e:  # 若捕获异常则停止执行
                 print('Error:', e)
+                return JsonResponse({"msg": "failed"})
 
 
 # 注册页面login/register.html
@@ -81,30 +97,40 @@ def register(request):
         return render(request, 'login/register.html')
     # 如果form通过POST方法发送数据
     elif request.method == 'POST':
-        # 接受request.POST参数构造form类的实例
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        typeOfUser = request.POST.get('typeOfUser')
+        # 获取AJAX上传的数据，获取对象为JSON
+        user = request.POST.get('user')
+        # 将密码反序列化为字典
+        user = json.loads(user)
+
+        username = user['username']
+        password = user['password']
+        user_type = user['typeOfUser']  # 接收的用户种类
 
         # 若登录账号种类为学生
-        if typeOfUser == 'student':
+        if user_type == 'student':
             try:  # 若数据库已经有该学生的记录，则返回注册界面
-                Student.objects.get(id=username)
-                return render(request, 'login/register.html')
+                student = Student.objects.get(id=username)
+                if(student is not None):
+                    print('该学生账号已存在，无法重新注册！')
+                    return JsonResponse({"msg": "failed"})
             except Exception as e:  # 若数据库没有该学生的记录，则增加然后返回登录界面
+                print(e)
+                print('创建学生账号')
                 Student.objects.create(id=username, password=password)
-                return render(request, 'login/login.html')
+                return JsonResponse({"msg": "success"})
 
         # 若注册账号种类为教师
-        if typeOfUser == 'teacher':
+        if user_type == 'teacher':
             try:
-                Teacher.objects.get(id=username)
-                print('该教师账号已存在，无法重新注册！')
-                return render(request, 'login/register.html')
+                teacher = Teacher.objects.get(id=username)
+                if (teacher is not None):
+                    print('该教师账号已存在，无法重新注册！')
+                    return JsonResponse({"msg": "failed"})
             except Exception as e:
+                print(e)
+                print('创建教师账号')
                 Teacher.objects.create(id=username, password=password)
-                print('教师账号注册成功！')
-                return render(request, 'login/login.html')
+                return JsonResponse({"msg": "success"})
 
 
 # 管理员功能页面login/admin-home.html
