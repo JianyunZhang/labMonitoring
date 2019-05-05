@@ -3,7 +3,7 @@
 
   <head>
     <meta charset="UTF-8">
-    <title>管理员功能页面-查看实验室列表</title>
+    <title>管理员功能页面-查看实验设备列表</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
@@ -24,46 +24,48 @@
     <div class="x-nav">
       <span class="layui-breadcrumb">
         <a _href="/admin-welcome/">首页</a>
-        <a href=""><cite>查看实验室列表</cite></a>
+        <a href=""><cite>查看实验设备列表</cite></a>
       </span>
-      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="?page={{ laboratory_list.number }}" title="刷新">
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="?page={{ instrument_list.number }}" title="刷新">
         <i class="layui-icon" style="line-height:30px">ဂ</i></a>
     </div>
     <div class="x-body">
       <div class="layui-row">
-        <form class="layui-form layui-col-md12 x-so" method="get" action="/admin-list-laboratory/">
-          <input type="text" name="laboratory_name" id="laboratory_name" placeholder="请输入实验室名称" class="layui-input">
-          <input type="text" name="laboratory_department" id="laboratory_department" placeholder="请输入实验室所属单位" class="layui-input">
+        <form class="layui-form layui-col-md12 x-so" method="get" action="/admin-list-instrument/">
+          <input type="text" name="instrument_name" id="instrument_name" placeholder="请输入设备名称" class="layui-input">
+          <input type="text" name="instrument_laboratory_name" id="instrument_laboratory_name" placeholder="请输入仪器所属实验室" class="layui-input">
           <button class="layui-btn"  lay-submit="" lay-filter="sreach" name="search" type="submit"><i class="layui-icon">&#xe615;</i></button>
         </form>
       </div>
       <xblock>
-        <button class="layui-btn" onclick="x_admin_show('新增实验室','/admin-add-laboratory', 600, 500)"><i class="layui-icon"></i>新增实验室</button>
+        <button class="layui-btn" onclick="x_admin_show('新增实验设备','/admin-add-instrument', 600, 500)"><i class="layui-icon"></i>新增实验设备</button>
       </xblock>
       <table class="layui-table">
         <thead>
           <tr>
             <th>照片</th>
-            <th>实验室名称</th>
-            <th>所属单位</th>
-            <th>地址</th>
+            <th>设备名称</th>
+            <th>所属实验室</th>
+            <th>设备种类</th>
             <th>说明</th>
+            <th>添加日期</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
-          {% for laboratory in laboratory_list %}
+          {% for instrument in instrument_list %}
           <tr>
-            <td align="center"><img src="{{ laboratory.photo_url }}" height="50" width="90" /></td>
-            <td>{{ laboratory.name }}</td>
-            <td>{{ laboratory.department }}</td>
-            <td>{{ laboratory.location }}</td>
-            <td>{{ laboratory.note }}</td>
+            <td align="center"><img src="{{ instrument.photo_url }}" height="50" width="90" /></td>
+            <td>{{ instrument.name }}</td>
+            <td>{{ instrument.laboratory_name }}</td>
+            <td>{{ instrument.category }}</td>
+            <td>{{ instrument.note }}</td>
+            <td>{{ instrument.date }}</td>
             <td class="td-manage" align="center">
-              <a title="编辑实验室信息"  onclick="x_admin_show('编辑实验室信息','/admin-check-laboratory?id={{ laboratory.id }}', 600, 500)" href="javascript:;">
+              <a title="编辑实验设备信息"  onclick="x_admin_show('编辑实验设备信息','/admin-check-instrument?id={{ instrument.id }}', 600, 500)" href="javascript:;">
                 <i class="layui-icon">&#xe642;</i>
               </a>
-               <a title="删除实验室" onclick="member_del(this,'{{ laboratory.id }}')" href="javascript:;">
+               <a title="删除实验设备" onclick="member_del(this,'{{ instrument.id }}')" href="javascript:;">
                 <i class="layui-icon">&#xe640;</i>
               </a>
             </td>
@@ -75,8 +77,8 @@
       <div class="page">
         <div>
         <!--上一页-->
-        {% if laboratory_list.has_previous %}
-          <a class='prev' href="?page={{ laboratory_list.previous_page_number }}">上一页</a>
+        {% if instrument_list.has_previous %}
+          <a class='prev' href="?page={{ instrument_list.previous_page_number }}">上一页</a>
         {% endif %}
 
         <!--左边的页码-->
@@ -85,8 +87,8 @@
         {% endfor %}
 
         <!--中间的页码-->
-        <span class="current" href="?page={{ laboratory_list.number }}">
-           第 {{ laboratory_list.number }} 页，总 {{ laboratory_list.paginator.num_pages }} 页
+        <span class="current" href="?page={{ instrument_list.number }}">
+           第 {{ instrument_list.number }} 页，总 {{ instrument_list.paginator.num_pages }} 页
         </span>
 
         <!--右边的页码-->
@@ -96,7 +98,7 @@
 
         <!--下一页-->
         {% if laboratory_list.has_next %}
-          <a class='next' href="?page={{ laboratory_list.next_page_number }}">
+          <a class='next' href="?page={{ instrument_list.next_page_number }}">
               下一页
           </a>
         {% endif %}
@@ -175,13 +177,13 @@
           });
       }
 
-      /*按id删除实验室*/
+      /*按id删除实验设备*/
       function member_del(obj,id){
           layer.confirm('确认要删除吗？',function(index){
               //发异步删除数据
               //利用jQuery.ajax()发异步，把数据提交给django
               $.ajax({
-                  url: "/admin-list-laboratory/",  //链接地址，字符串表示
+                  url: "/admin-list-instrument/",  //链接地址，字符串表示
                   data: {'id': id},    //{name: 'jenny'},    //需发送到服务器的数据，GET与POST都可以，格式为{A: '...', B: '...'}
                   type: "POST",     //"POST" 或 "GET"，请求类型
                   dataType: "json",     //服务器响应的数据类型，字符串表示；当填写为json时，回调函数中无需再对数据反序列化为json
