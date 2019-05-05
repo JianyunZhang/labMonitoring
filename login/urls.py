@@ -24,4 +24,5 @@ urlpatterns = [
     path('admin-check-laboratory/', views.admin_check_laboratory),  # 管理员修改实验室
     path('admin-list-instrument/', views.admin_list_instrument),  # 管理员查看实验仪器列表
     path('admin-add-instrument/', views.admin_add_instrument),  # 管理员添加实验仪器
+    path('admin-check-instrument/', views.admin_check_instrument),  # 管理员查看实验仪器
 ]

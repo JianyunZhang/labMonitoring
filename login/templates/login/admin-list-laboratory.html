@@ -38,7 +38,7 @@
         </form>
       </div>
       <xblock>
-        <button class="layui-btn" onclick="x_admin_show('新增实验室','/admin-add-laboratory', 600, 500)"><i class="layui-icon"></i>新增实验室</button>
+        <button class="layui-btn" onclick="x_admin_show('新增实验室','/admin-add-laboratory', 550, 400)"><i class="layui-icon"></i>新增实验室</button>
       </xblock>
       <table class="layui-table">
         <thead>
@@ -60,7 +60,7 @@
             <td>{{ laboratory.location }}</td>
             <td>{{ laboratory.note }}</td>
             <td class="td-manage" align="center">
-              <a title="编辑实验室信息"  onclick="x_admin_show('编辑实验室信息','/admin-check-laboratory?id={{ laboratory.id }}', 600, 500)" href="javascript:;">
+              <a title="编辑实验室信息"  onclick="x_admin_show('编辑实验室信息','/admin-check-laboratory?id={{ laboratory.id }}', 550, 500)" href="javascript:;">
                 <i class="layui-icon">&#xe642;</i>
               </a>
                <a title="删除实验室" onclick="member_del(this,'{{ laboratory.id }}')" href="javascript:;">

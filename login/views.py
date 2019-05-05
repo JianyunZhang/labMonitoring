@@ -742,6 +742,61 @@ def admin_add_instrument(request):
         return JsonResponse({"msg": "failed"})
 
 
+# 管理员查看实验设备详情login/admin-check-instrument.html
+def admin_check_instrument(request):
+    if request.method == 'GET':
+        instrument_id = request.GET.get('id')
+        # 从数据库中查询该实验设备的数据
+        instrument = Instrument.objects.get(id=instrument_id)
+        # 将实验设备转换为字典
+        instrument_dict = json.loads(json.dumps(instrument, default=lambda obj: obj.__dict__))
+        # 打印选中的实验设备
+        print(instrument_dict)
+        return render(request, 'login/admin-check-instrument.html', {'instrument_dict': instrument_dict})
+    elif request.method == 'POST':
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        id = request.POST.get("id")
+        name = request.POST.get("name")
+        note = request.POST.get('note')
+        # 将上传的数据创建字典
+        instrument = {'id': id, 'name': name, 'note': note, 'photo_url': ''}
+        # 获取上传的文件
+        file = request.FILES.get("file", None)  # 获取上传的文件，如果没有文件，则默认为None
+        print('收到上传的内容：', instrument)
+
+        # 获取当前时间
+        now_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+        # 将上传的文件保存到服务器本地
+        url = os.path.join(BASE_DIR, 'login', 'static', 'login', 'instrument_photo', instrument['name'] + '-' + now_time + '.jpg')
+        print('照片保存路径：', url)
+        # 将文件写入指定位置
+        if not file:  # 如果没有接收到文件
+            print('没有接收到照片！')
+            Instrument.objects.filter(id=instrument['id']).update(name=instrument['name'], note=instrument['note'])
+            return JsonResponse({"msg": "success"})
+        destination = open(url, 'wb+')  # 打开特定的文件进行二进制的写操作
+        for chunk in file.chunks():  # 分块写入文件
+            destination.write(chunk)
+        destination.close()
+        print('照片保存成功！')
+
+        # 设置照片访问路径
+        substr = os.path.join(BASE_DIR, 'login')
+        url = url.replace(substr, '')  # 替换子串,形成照片访问路径
+        instrument['photo_url'] = url
+        print('照片访问路径：', url)
+
+        # 将信息存入数据库
+        try:
+            Instrument.objects.filter(id=instrument['id']).update(name=instrument['name'], note=instrument['note'], photo_url=instrument['photo_url'])
+            print('实验室修改成功！name =', instrument['name'])
+            return JsonResponse({"msg": "success"})
+        except Exception as e:
+            print('实验室创建失败！name =', instrument['name'])
+            print(e)
+            return JsonResponse({"msg": "failed"})
+
+
 def student_home(request):
     return render(request, 'login/student-home.html')
 

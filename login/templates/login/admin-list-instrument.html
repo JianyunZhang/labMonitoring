@@ -38,7 +38,7 @@
         </form>
       </div>
       <xblock>
-        <button class="layui-btn" onclick="x_admin_show('新增实验设备','/admin-add-instrument', 600, 500)"><i class="layui-icon"></i>新增实验设备</button>
+        <button class="layui-btn" onclick="x_admin_show('新增实验设备','/admin-add-instrument', 550, 400)"><i class="layui-icon"></i>新增实验设备</button>
       </xblock>
       <table class="layui-table">
         <thead>
@@ -62,7 +62,7 @@
             <td>{{ instrument.note }}</td>
             <td>{{ instrument.date }}</td>
             <td class="td-manage" align="center">
-              <a title="编辑实验设备信息"  onclick="x_admin_show('编辑实验设备信息','/admin-check-instrument?id={{ instrument.id }}', 600, 500)" href="javascript:;">
+              <a title="编辑实验设备信息"  onclick="x_admin_show('编辑实验设备信息','/admin-check-instrument?id={{ instrument.id }}', 550, 490)" href="javascript:;">
                 <i class="layui-icon">&#xe642;</i>
               </a>
                <a title="删除实验设备" onclick="member_del(this,'{{ instrument.id }}')" href="javascript:;">

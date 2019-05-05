@@ -1,11 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>欢迎使用学生上机实验管理系统</title>
+    <title>学生上机实验管理系统</title>
+    <link rel="stylesheet" href="/static/common/css/notsosimple.css">
 </head>
 <body>
-<a href="/login/">进入登录界面</a>
-<a href="/register/">进入注册界面</a>
+<!-- 顶部LOGO-->
+<div id="header">
+    <img src="/static/common/images/sys_logo.png" width="900" alt="sys logo"><br><br>
+</div>
+<div id="main">
+  <div class="content-mat">
+    <div id="content">
+      <!-- 侧栏部分-->
+      <!-- 以厦门大学空间中心为例, 添加效果 -->
+      <div id="sidebar">
+      <br>
+      <dl class="nav3-grid">
+        <dt><h3><a href="/login/"><BR>登录系统<BR> </a> </h3></dt>
+        <dt><h3><a href="/register/"><BR>注册账号<BR> </a> </h3></dt>
+        <dt><h3><a href="/frame/"><BR>环境依赖<BR> </a> </h3></dt>
+		<dt><h3><a href="/code/"><BR>项目代码<BR> </a> </h3></dt>
+      </dl>
+      <br>
+    </div>
+      <!--  侧栏部分结束  -->
+
+      <div id="wikitext">
+      <h1>欢迎使用学生上机实验管理系统！ @ Nanchang, NCHU</h1>
+      <hr>
+      <p class="vspace"></p>
+      <div style="text-align: left;">
+           <p align="center"><img src="/static/common/images/main_pic.jpg" width="600" class="papericon"></p><br>
+           <p align="justify">
+               随着计算机技术的不断发展，互联网和软件无时改变着人们的工作与生活，也为高校学生上机实验的管理模式提出了新的要求。在传统管理模式下，实验室的设备管理、上课安排、实验指导资料的发放、实验报告的批阅主要是基于纸质表单或文档。随着学院开设的专业数量增多，需要进行上机实验的课程数量增加，实验室所安排的课程数量和种类也有所增加。与此同时，学校对教学水平要求的提升，也给上机实验教学和实验室管理带来了新的挑战。
+为了确保实验课的教学质量，减少教师的重复工作量，降低实验室管理人员的管理难度。建立一个功能完善的上机实验管理系统，以完成对实验室设备状况、实验课节次安排、学生实验报告等信息和资料的整理与处理工作就显得比较重要。与此同时，还应在本系统中加入图像识别功能，利用实验室摄像头自动拍摄上课期间实验室实况，通过机器学习和图像识别技术分析所拍摄照片，检测学生使用手机的情况，然后将识别结果存储在系统中，以供教师后续调用查看。
+           </p>
+           <p align="justify">
+               本课题重点研究物体识别技术，目标是将摄像头作为数据采集端接入学生上机管理系统，自动实现物品的识别。应具体实现的目标为：
+               （1）对基于图像的物品识别技术进行了深入研究。针对图像的物品识别的研究，通过接入系统的摄像头获取原始图像，采用图像预处理，进行图像增强。使用机器学习方法所训练出的过滤器模型进行图像识别，最后将处理结果返回给管理系统。
+               （2）搭建基于B/S模式的实验管理系统，该系统应该具备登录注册功能，用户发布、删除、查找信息功能，用户评论信息功能，用户评论收藏、转发信息功能，信息爬取功能，信息定期更新功能，信息推荐功能。本系统应采用MVC分层结构进行设计，主要包含三个模块层：数据持久化层、业务层和表现层。
+           </p>
+
+      </div><br>
+
+    </div>
+  </div>
+
+  <div class="clearer"></div>
+</div>
+
+<div id="footer">
+    <p align="center"><small>南昌航空大学软件学院: (Email) 15205231@stu.nchu.edu.cn <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256847746'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s95.cnzz.com/z_stat.php%3Fid%3D1256847746%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script></small></p>
+</div>
+
 </body>
 </html>

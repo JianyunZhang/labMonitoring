@@ -2,7 +2,7 @@
 
   <head>
     <meta charset="UTF-8">
-    <title>管理员-添加实验设备</title>
+    <title>管理员-查看实验设备信息</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
@@ -21,40 +21,38 @@
 
   <body>
     <div class="x-body">
-        <form class="layui-form" enctype='multipart/form-data'>
-          <div class="layui-form-item">
+        <form class="layui-form">
+          <div class="layui-form-item" hidden="hidden">
               <label class="layui-form-label">
-                  <span class="x-red">*</span>名称：
+                  <span class="x-red">*</span>id：
               </label>
-              <div class="layui-input-inline">
-                  <input type="text" id="name" name="name" lay-verify="required" autocomplete="off" class="layui-input">
-              </div>
-              <div class="layui-form-mid layui-word-aux">
-                  实验设备的名称
+              <div class="layui-form-mid">
+                  <b>{{ instrument_dict.id }}</b>
+                  <input type="text" id="id" name="id" lay-verify="required" value="{{ instrument_dict.id }}">
               </div>
           </div>
           <div class="layui-form-item">
-                <label class="layui-form-label">
-                    <span class="x-red">*</span>所属实验室：
-                </label>
-                <div class="layui-input-inline">
-                  <select name="laboratory_name" id="laboratory_name" lay-verify="required">
-                    {% for laboratory in laboratory_list  %}
-                    <option value="{{ laboratory.name }}"> {{ laboratory.name }} </option>
-                    {% endfor %}
-                  </select>
-                </div>
+              <label class="layui-form-label">
+                  所属实验室：
+              </label>
+              <div class="layui-form-mid">
+                  <span>{{ instrument_dict.laboratory_name }}</span>
+              </div>
           </div>
           <div class="layui-form-item">
               <label class="layui-form-label">
-                  <span class="x-red">*</span>设备种类：
+                  所属类别：
+              </label>
+              <div class="layui-form-mid">
+                 <span>{{ instrument_dict.category }}</span>
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label class="layui-form-label">
+                  <span class="x-red">*</span>设备名称：
               </label>
               <div class="layui-input-inline">
-                  <select name="category" id="category" lay-verify="required">
-                    <option value="一般实验设备"> 一般实验设备 </option>
-                    <option value="高价值设备"> 高价值设备 </option>
-                    <option value="科研紧缺设备"> 科研紧缺设备 </option>
-                  </select>
+                  <input type="text" id="name" name="name" autocomplete="off" class="layui-input" lay-verify="required" value="{{ instrument_dict.name }}">
               </div>
           </div>
           <div class="layui-form-item">
@@ -62,23 +60,19 @@
                   说明：
               </label>
               <div class="layui-input-inline">
-                  <input type="text" id="note" name="note" class="layui-input">
-              </div>
-              <div class="layui-form-mid layui-word-aux">
-                  该实验仪器的相关说明
+                  <input type="text" id="note" name="note" autocomplete="off" class="layui-input"  value="{{ instrument_dict.note }}">
               </div>
           </div>
           <div class="layui-form-item">
-              <label for="department" class="layui-form-label">
-                  <span class="x-red">*</span>照片：
+              <label class="layui-form-label">
+                  图片：
               </label>
-              <div class="layui-input-inline">
-                  <input type="file" id="file" name="file" lay-verify="required">
-              </div>
-              <div class="layui-form-mid layui-word-aux">
-                  该实验仪器的照片
+              <div class="layui-form-mid">
+                  <img src="{{ instrument_dict.photo_url }}" height="80" width="150" />
+                  <input type="file" name="file" id="file">
               </div>
           </div>
+
           <div class="layui-form-item">
               <div class="layui-input-block">
                 <button class="layui-btn" lay-submit lay-filter="submit">提交</button>
@@ -135,47 +129,42 @@
 
           var formData = new FormData();
           formData.append("file",$("#file")[0].files[0]);
-          formData.append("laboratory_name",$("#laboratory_name").val());
+          formData.append("id",$("#id").val());
           formData.append("name",$("#name").val());
-          formData.append("category",$("#category").val());
           formData.append("note",$("#note").val());
 
           //利用jQuery.ajax()发异步，把数据提交给django
           $.ajax({
-              url: "/admin-add-instrument/",  //链接地址，字符串表示
-              data: formData, //{'laboratory': JSON.stringify(data.field), 'file': formData}, //文件上传必须用FormData对象 {'laboratory': JSON.stringify(data.field)},    //{name: 'jenny'},    //需发送到服务器的数据，GET与POST都可以，格式为{A: '...', B: '...'}
+              url: "/admin-check-instrument/",  //链接地址，字符串表示
+              data: formData,    //{name: 'jenny'},    //需发送到服务器的数据，GET与POST都可以，格式为{A: '...', B: '...'}
               type: "POST",     //"POST" 或 "GET"，请求类型
               contentType: false,
               processData: false,
               dataType: "json",     //服务器响应的数据类型，字符串表示；当填写为json时，回调函数中无需再对数据反序列化为json
               success: function(data) {     //请求成功后，服务器回调的函数
                   if(data.msg === 'success') {
-                      console.log("实验设备新增成功！");
+                      console.log("实验设备信息修改成功！");
                       //弹出成功提示框，点击确定后关闭窗口
-                      layer.alert("实验设备新增成功！", {icon: 1},function () {
+                      layer.alert("实验设备信息修改成功！", {icon: 1},function () {
                         // 获得frame索引
                         var index = parent.layer.getFrameIndex(window.name);
+                        //刷新当前页面
+                        //window.location.reload()
                         //关闭当前frame
                         parent.layer.close(index);
                       });
                       return false;
                   }
                   else {
-                      console.log("实验设备新增失败！");
+                      console.log("实验设备信息修改失败！");
                       //弹出失败提示框，点击确定后关闭窗口
-                      layer.alert("实验设备新增失败！", {icon: 2},function () {
-                        // 获得frame索引
-                        //var index = parent.layer.getFrameIndex(window.name);
-                        //刷新当前页面
+                      layer.alert("实验设备信息修改失败！", {icon: 2},function () {
                         window.location.reload()
-                        //关闭当前frame
-                        //parent.layer.close(index);
                       });
                       return false
                   }
                }
           });
-
           return false;
         });
       });
