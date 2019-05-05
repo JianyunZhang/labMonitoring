@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, InvalidPage
+from labMonitoring.settings import BASE_DIR
 from django.contrib import auth
 from django.shortcuts import redirect
 from django import forms
@@ -13,6 +14,7 @@ from .forms import CaptchaForm
 from login.models import *
 
 import json
+import os
 from django.core import serializers
 from json import *
 import datetime
@@ -457,7 +459,115 @@ def admin_add_admin(request):
             print('管理员账号创建成功！id =', admin['id'])
             return JsonResponse({"msg": "success"})
         except Exception as e:
-            print('管理员个人信息修改失败！id =', admin['id'])
+            print('管理员账号创建失败！id =', admin['id'])
+            print(e)
+        return JsonResponse({"msg": "failed"})
+
+
+# 管理员查看实验室列表login/admin-list-laboratory.html
+def admin_list_laboratory(request):
+    if request.method == 'GET':
+        if 'search' in request.GET:
+            # 查询操作，取出搜索框输入的名称，单位
+            laboratory_name = request.GET.get('laboratory_name')
+            laboratory_department = request.GET.get('laboratory_department')
+            try:
+                # 从数据库中模糊查询，查出实验室列表，按照序号排序
+                laboratory_list = Laboratory.objects.filter(name__contains=laboratory_name, department__contains=laboratory_department).order_by('-id')
+                print('查找结果：', laboratory_list)
+            except Exception as e:
+                print('没有查询到结果！name =', laboratory_name)
+                print(e)
+                laboratory_list = []
+
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(laboratory_list, 5)
+            page = request.GET.get('page')
+            try:
+                laboratory_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                laboratory_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/admin-list-laboratory.html', {"laboratory_list": laboratory_list})
+        else:
+            # 从数据库中查询实验室列表
+            laboratory_list = Laboratory.objects.all().order_by('-id')
+            print('当前实验室列表：', laboratory_list)
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(laboratory_list, 5)
+            # 获取 url 后面的 page 参数的值, 首页不显示 page 参数, 默认值是 1
+            page = request.GET.get('page')
+            try:
+                laboratory_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                laboratory_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/admin-list-laboratory.html', {"laboratory_list": laboratory_list})
+    elif request.method == 'POST':  # 删除教师操作
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        laboratory_id = request.POST.get('id')
+        # 删除数据库中的记录
+        Laboratory.objects.filter(id=laboratory_id).delete()
+        print('删除实验室成功！id =', laboratory_id)
+        return HttpResponse('实验室信息删除成功')
+
+
+# 管理员添加实验室login/admin-add-laboratory.html
+def admin_add_laboratory(request):
+    if request.method == 'GET':
+        return render(request, 'login/admin-add-laboratory.html')
+    if request.method == 'POST':    # 接收AJAX响应，添加实验室
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        name = request.POST.get("name")
+        department = request.POST.get("department")
+        location = request.POST.get('location')
+        note = request.POST.get('note')
+        # 将上传的数据创建字典
+        laboratory = {'name': name, 'department': department, 'location': location, 'note': note, 'photo_url': ''}
+        # 获取上传的文件
+        file = request.FILES.get("file", None)  # 获取上传的文件，如果没有文件，则默认为None
+
+        print('收到上传的内容：', laboratory)
+        # 获取当前时间
+        now_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+        # 将上传的文件保存到服务器本地
+        url = os.path.join(BASE_DIR, 'login', 'static', 'login', 'laboratory_photo', laboratory['name'] + '-' + now_time + '.jpg')
+        print('照片保存路径：', url)
+        # 将文件写入指定位置
+        if not file:  # 如果没有接收到文件
+            print('没有接收到照片！')
+            return JsonResponse({"msg": "failed"})
+        destination = open(url, 'wb+')  # 打开特定的文件进行二进制的写操作
+        for chunk in file.chunks():  # 分块写入文件
+            destination.write(chunk)
+        destination.close()
+        print('照片保存成功！')
+
+        # 设置照片访问路径
+        substr = os.path.join(BASE_DIR, 'login')
+        url = url.replace(substr, '')  # 替换子串,形成照片访问路径
+        laboratory['photo_url'] = url
+        print('照片访问路径：', url)
+
+        # 将信息存入数据库
+        try:
+            Laboratory.objects.create(name=laboratory['name'], department=laboratory['department'], location=laboratory['location'], note=laboratory['note'], photo_url=laboratory['photo_url'])
+            print('实验室创建成功！name =', laboratory['name'])
+            return JsonResponse({"msg": "success"})
+        except Exception as e:
+            print('实验室创建失败！name =', laboratory['name'])
             print(e)
         return JsonResponse({"msg": "failed"})
 

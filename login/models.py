@@ -37,7 +37,7 @@ class Admin(models.Model):  # 管理员类
 
 
 class Laboratory(models.Model):   # 实验室类
-    id = models.CharField(primary_key=True, auto_created=True, max_length=30)  # id
+    id = models.AutoField(primary_key=True, auto_created=True)  # id
     name = models.CharField(max_length=30)  # 名称
     department = models.CharField(max_length=30)    # 所在单位
     location = models.CharField(max_length=30)  # 所在位置
@@ -46,7 +46,7 @@ class Laboratory(models.Model):   # 实验室类
 
 
 class Instrument(models.Model):     # 仪器类
-    id = models.CharField(primary_key=True, auto_created=True, max_length=30)  # id
+    id = models.AutoField(primary_key=True, auto_created=True)  # id
     laboratory_id = models.CharField(max_length=30)    # 所属实验室id
     laboratory_name = models.CharField(max_length=30)   # 所属实验室名称
     name = models.CharField(max_length=30)  # 名称
@@ -57,7 +57,7 @@ class Instrument(models.Model):     # 仪器类
 
 
 class Course(models.Model):  # 开设实验课程类
-    id = models.CharField(primary_key=True, auto_created=True, max_length=30)  # 课程id
+    id = models.AutoField(primary_key=True, auto_created=True)  # 课程id
     name = models.CharField(max_length=30)  # 课程名
     teacher_id = models.CharField(max_length=30)  # 教师id
     teacher_name = models.CharField(max_length=30)   # 教师名
@@ -70,7 +70,7 @@ class Course(models.Model):  # 开设实验课程类
 
 
 class Select(models.Model):  # 学生选课类
-    id = models.CharField(primary_key=True, auto_created=True, max_length=30)  # 选课号
+    id = models.AutoField(primary_key=True, auto_created=True)  # 选课号
     student_id = models.CharField(max_length=30)  # 学生id
     student_name = models.CharField(max_length=30)  # 学生姓名
     course_id = models.CharField(max_length=30)  # 课程id
@@ -82,7 +82,7 @@ class Select(models.Model):  # 学生选课类
 
 
 class Assignment(models.Model):  # 课程作业类
-    id = models.CharField(primary_key=True, auto_created=True, max_length=30)  # 选课号
+    id = models.AutoField(primary_key=True, auto_created=True)  # 选课号
     student_id = models.CharField(max_length=30)  # 学生id
     student_name = models.CharField(max_length=30)  # 学生姓名
     course_id = models.CharField(max_length=30)  # 课程id

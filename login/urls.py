@@ -19,4 +19,6 @@ urlpatterns = [
     path('admin-list-admin/', views.admin_list_admin),  # 管理员查看管理员列表
     path('admin-check-admin/', views.admin_check_admin),  # 管理员查看管理员详情
     path('admin-add-admin/', views.admin_add_admin),  # 管理员添加管理员
+    path('admin-list-laboratory/', views.admin_list_laboratory),  # 管理员查看实验室列表
+    path('admin-add-laboratory/', views.admin_add_laboratory),  # 管理员添加实验室
 ]

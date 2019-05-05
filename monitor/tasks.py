@@ -23,6 +23,7 @@ def get_camera_list():
             try:  # 若数据库已经有该摄像头的记录，则跳过操作
                 Camera.objects.get(id=total_camera_num)
             except Exception as e:  # 若数据库不含该摄像头的记录，则进行添加操作
+                print(e)
                 Camera.objects.create(id=total_camera_num)
             total_camera_num = total_camera_num + 1  # 摄像头计数器自增
     print('摄像头总数：', total_camera_num)

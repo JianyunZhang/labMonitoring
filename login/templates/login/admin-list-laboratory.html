@@ -32,8 +32,8 @@
     <div class="x-body">
       <div class="layui-row">
         <form class="layui-form layui-col-md12 x-so" method="get" action="/admin-list-laboratory/">
-          <input type="text" name="admin_name" id="admin_id" placeholder="请输入实验室名称" class="layui-input">
-          <input type="text" name="admin_department" id="admin_name" placeholder="请输入实验室所属单位" class="layui-input">
+          <input type="text" name="laboratory_name" id="laboratory_name" placeholder="请输入实验室名称" class="layui-input">
+          <input type="text" name="laboratory_department" id="laboratory_department" placeholder="请输入实验室所属单位" class="layui-input">
           <button class="layui-btn"  lay-submit="" lay-filter="sreach" name="search" type="submit"><i class="layui-icon">&#xe615;</i></button>
         </form>
       </div>
@@ -54,12 +54,12 @@
         <tbody>
           {% for laboratory in laboratory_list %}
           <tr>
-            <td><img src="{{ laboratory.photo_url }}" height="96" width="128" /></td>
+            <td align="center"><img src="{{ laboratory.photo_url }}" height="80" width="200" /></td>
             <td>{{ laboratory.name }}</td>
             <td>{{ laboratory.department }}</td>
             <td>{{ laboratory.location }}</td>
             <td>{{ laboratory.note }}</td>
-            <td class="td-manage">
+            <td class="td-manage" align="center">
               <a title="编辑实验室信息"  onclick="x_admin_show('编辑实验室信息','/admin-check-laboratory?id={{ laboratory.id }}', 400, 400)" href="javascript:;">
                 <i class="layui-icon">&#xe63c;</i>
               </a>
