@@ -713,7 +713,7 @@ def admin_add_instrument(request):
         # 获取当前时间
         now_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
         # 将上传的文件保存到服务器本地
-        url = os.path.join(BASE_DIR, 'login', 'static', 'login', 'instrument_photo', laboratory['name'] + '-' + now_time + '.jpg')
+        url = os.path.join(BASE_DIR, 'login', 'static', 'login', 'instrument_photo', instrument['name'] + '-' + now_time + '.jpg')
         print('照片保存路径：', url)
         # 将文件写入指定位置
         if not file:  # 如果没有接收到文件
