@@ -28,4 +28,10 @@ urlpatterns = [
     path('admin-list-course/', views.admin_list_course),  # 管理员查看课程列表
     path('admin-list-select/', views.admin_list_select),  # 管理员查看选课列表
     path('teacher-home/', views.teacher_home),  # 教师功能页面
+    path('teacher-check-self/', views.teacher_check_self),  # 教师查看个人信息
+    path('teacher-change-password/', views.teacher_change_password),  # 教师修改账号密码
+    path('teacher-welcome/', views.teacher_welcome),    # 教师欢迎界面
+    path('teacher-list-course/', views.teacher_list_course),  # 教师查看课程列表
+    path('teacher-add-course/', views.teacher_add_course),  # 教师新增课程
+    #path('teacher-check-course/', views.teacher_check_course),  # 教师查看课程
 ]

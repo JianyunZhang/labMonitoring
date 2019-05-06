@@ -1,0 +1,186 @@
+<html class="x-admin-sm">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>教师-新增实验</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" href="/static/common/css/font.css">
+    <link rel="stylesheet" href="/static/common/css/xadmin.css">
+    <script type="text/javascript" src="/static/common/js/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="/static/common/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/common/js/xadmin.js"></script>
+    <script type="text/javascript" src="/static/common/js/cookie.js"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+      <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="x-body">
+        <form class="layui-form" enctype='multipart/form-data'>
+          <div class="layui-form-item">
+              <label class="layui-form-label">
+                  <span class="x-red">*</span>名称：
+              </label>
+              <div class="layui-input-inline">
+                  <input type="text" id="name" name="name" lay-verify="required" autocomplete="off" class="layui-input">
+              </div>
+              <div class="layui-form-mid layui-word-aux">
+                  该实验的名称
+              </div>
+          </div>
+          <div class="layui-form-item">
+                <label class="layui-form-label">
+                    <span class="x-red">*</span>实验室：
+                </label>
+                <div class="layui-input-inline">
+                  <select name="laboratory_name" id="laboratory_name" lay-verify="required">
+                    {% for laboratory in laboratory_list  %}
+                    <option value="{{ laboratory.name }}"> {{ laboratory.name }} </option>
+                    {% endfor %}
+                  </select>
+                </div>
+          </div>
+          <div class="layui-form-item">
+              <label class="layui-form-label">
+                  说明：
+              </label>
+              <div class="layui-input-inline">
+                  <input type="text" id="note" name="note" class="layui-input">
+              </div>
+              <div class="layui-form-mid layui-word-aux">
+                  该实验的相关说明
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label for="department" class="layui-form-label">
+                  <span class="x-red">*</span>附件：
+              </label>
+              <div class="layui-input-inline">
+                  <input type="file" id="file" name="file" lay-verify="required">
+              </div>
+              <div class="layui-form-mid layui-word-aux">
+                  该实验的指导手册或大纲
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label class="layui-form-label">
+                  课程人数：
+              </label>
+              <div class="layui-input-inline">
+                  <select name="max_num" id="max_num">
+                      <option value="30">30</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                  </select>
+              </div>
+              <div class="layui-form-mid layui-word-aux">
+                  允许选课的最大人数
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="submit">提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+              </div>
+          </div>
+      </form>
+    </div>
+    <script type="text/javascript">
+      layui.use(['form','layer'], function(){
+        $ = layui.jquery;
+        var form = layui.form;
+        var layer = layui.layer;
+
+        // using jQuery CSRF令牌认证
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // 这些HTTP方法不要求CSRF包含
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+
+        //监听submit提交,submit(*)中的 * 号为事件过滤器的值，是在绑定执行提交的元素时设定的按钮属性lay-filter="*"
+        form.on('submit(submit)', function(data){
+          //console.log(data);  //data.elem, data.form, data.field的总和
+          //console.log(data.elem);   //被执行事件的元素DOM对象，一般为button对象
+          //console.log(data.form);   //被执行提交的form对象，一般在存在form标签时才会返回
+          //console.log(data.field);  //当前容器的全部表单字段，名值对形式：{name: value}
+          //console.log(JSON.stringify(data.field));  //当前容器的全部表单字段，序列化为JSON
+          //return false; //停止js脚本，阻止表单跳转。如果需要表单跳转，去掉这段即可。
+
+          var formData = new FormData();
+          formData.append("file",$("#file")[0].files[0]);
+          formData.append("laboratory_name",$("#laboratory_name").val());
+          formData.append("name",$("#name").val());
+          formData.append("max_num",$("#max_num").val());
+          formData.append("note",$("#note").val());
+
+          //利用jQuery.ajax()发异步，把数据提交给django
+          $.ajax({
+              url: "/teacher-add-course/",  //链接地址，字符串表示
+              data: formData, //{'laboratory': JSON.stringify(data.field), 'file': formData}, //文件上传必须用FormData对象 {'laboratory': JSON.stringify(data.field)},    //{name: 'jenny'},    //需发送到服务器的数据，GET与POST都可以，格式为{A: '...', B: '...'}
+              type: "POST",     //"POST" 或 "GET"，请求类型
+              contentType: false,
+              processData: false,
+              dataType: "json",     //服务器响应的数据类型，字符串表示；当填写为json时，回调函数中无需再对数据反序列化为json
+              success: function(data) {     //请求成功后，服务器回调的函数
+                  if(data.msg === 'success') {
+                      console.log("新增实验成功！");
+                      //弹出成功提示框，点击确定后关闭窗口
+                      layer.alert("新增实验成功！", {icon: 1},function () {
+                        // 获得frame索引
+                        var index = parent.layer.getFrameIndex(window.name);
+                        //关闭当前frame
+                        parent.layer.close(index);
+                      });
+                      return false;
+                  }
+                  else {
+                      console.log("新增实验失败！");
+                      //弹出失败提示框，点击确定后关闭窗口
+                      layer.alert("新增实验失败！", {icon: 2},function () {
+                        // 获得frame索引
+                        //var index = parent.layer.getFrameIndex(window.name);
+                        //刷新当前页面
+                        window.location.reload()
+                        //关闭当前frame
+                        //parent.layer.close(index);
+                      });
+                      return false
+                  }
+               }
+          });
+          return false;
+        });
+      });
+    </script>
+  </body>
+</html>

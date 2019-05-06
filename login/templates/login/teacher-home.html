@@ -1,10 +1,155 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html  class="x-admin-sm">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+	<meta charset="UTF-8">
+	<title>教师功能页面-学生上机管理系统</title>
+	<meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link rel="stylesheet" href="/static/common/css/font.css">
+	<link rel="stylesheet" href="/static/common/css/xadmin.css">
+    <script type="text/javascript" src="/static/common/js/jquery-3.2.1.js"></script>
+    <script type="text/javascript"src="/static/common/js/md5.js"></script>
+    <script src="/static/common/lib/layui/layui.js" charset="utf-8"></script>
+
+    <script type="text/javascript" src="/static/common/js/xadmin.js"></script>
+    <script type="text/javascript" src="/static/common/js/cookie.js"></script>
 </head>
 <body>
+    <!-- 顶部开始 -->
+    <div class="container">
+        <div class="logo"> <a href="/admin-home"> 教师功能操作面板 </a> </div>
+        <div class="left_open">
+            <i title="展开功能栏" class="iconfont">&#xe699;</i>
+        </div>
+        <ul class="layui-nav right" lay-filter="">
+          <li class="layui-nav-item">
+            <a href="javascript:;">{{ request.session.teacher.name }}</a>
+            <!-- 二级菜单 -->
+            <dl class="layui-nav-child">
+              <dd><a onclick="x_admin_show('教师个人信息','/teacher-check-self', 550, 560)">个人信息</a></dd>
+              <dd><a onclick="x_admin_show('修改密码','/teacher-change-password', 500, 300)">修改密码</a></dd>
+              <dd><a href="/">退出</a></dd>
+            </dl>
+          </li>
+        </ul>
 
+    </div>
+    <!-- 顶部结束 -->
+    <!-- 中部开始 -->
+     <!-- 左侧菜单开始 -->
+    <div class="left-nav">
+      <div id="side-nav">
+        <div id="nav">
+            <li>
+                <a href="javascript:;">
+                    <i class="iconfont">&#xe705;</i>
+                    <cite>实验设施</cite>
+                    <i class="iconfont nav_right">&#xe697;</i>
+                </a>
+                <ul class="sub-menu">
+                    <li>
+                        <a _href="/admin-list-laboratory">
+                            <i class="iconfont">&#xe6a7;</i>
+							<cite>实验室列表</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="/admin-list-instrument">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>实验设备列表</cite>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="javascript:;">
+                    <i class="iconfont">&#xe6b3;</i>
+                    <cite>课程管理</cite>
+                    <i class="iconfont nav_right">&#xe697;</i>
+                </a>
+                <ul class="sub-menu">
+                    <li>
+                        <a _href="/teacher-list-course">
+                            <i class="iconfont">&#xe6a7;</i>
+							<cite>课程列表</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="/teacher-list-select">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>学生选课</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="/teacher-list-assignment">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>发布作业</cite>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="javascript:;">
+                    <i class="iconfont">&#xe820;</i>
+                    <cite>监控管理</cite>
+                    <i class="iconfont nav_right">&#xe697;</i>
+                </a>
+                <ul class="sub-menu">
+                    <li>
+                        <a _href="/monitor/control">
+                            <em class="iconfont"></em>
+                            <cite>摄像头列表</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="/monitor/photo">
+                            <em class="iconfont"></em>
+                            <cite>拍摄照片列表</cite>
+                        </a>
+                    </li>
+                    <li>
+                        <a _href="/monitor/detection">
+                            <em class="iconfont"></em>
+                            <cite>识别结果列表</cite>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="x-slide_left"></div> -->
+    <!-- 左侧菜单结束 -->
+    <!-- 右侧主体开始 -->
+    <div class="page-content">
+        <div class="layui-tab tab" lay-filter="xbs_tab" lay-allowclose="false">
+          <ul class="layui-tab-title">
+            <li class="home"><i class="layui-icon">&#xe68e;</i>教师桌面</li>
+          </ul>
+          <div class="layui-unselect layui-form-select layui-form-selected" id="tab_right">
+                <dl>
+                    <dd data-type="this">关闭当前</dd>
+                    <dd data-type="other">关闭其它</dd>
+                    <dd data-type="all">关闭全部</dd>
+                </dl>
+          </div>
+          <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <iframe src='/teacher-welcome' frameborder="0" scrolling="yes" class="x-iframe"></iframe>
+            </div>
+          </div>
+          <div id="tab_show"></div>
+        </div>
+    </div>
+    <div class="page-content-bg"></div>
+    <!-- 右侧主体结束 -->
+    <!-- 中部结束 -->
+    <!-- 底部开始 -->
+    <div class="footer">
+        <div class="copyright"> 学生上机实验管理系统 </div>
+    </div>
+    <!-- 底部结束 -->
 </body>
 </html>

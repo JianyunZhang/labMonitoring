@@ -820,7 +820,7 @@ def admin_list_course(request):
             paginator = Paginator(course_list, 5)
             page = request.GET.get('page')
             try:
-                instrument_list = paginator.page(page)
+                course_list = paginator.page(page)
             # todo: 注意捕获异常
             except PageNotAnInteger:
                 # 如果请求的页数不是整数, 返回第一页。
@@ -928,3 +928,187 @@ def admin_list_select(request):
 def teacher_home(request):
     if request.method == 'GET':
         return render(request, 'login/teacher-home.html')
+
+
+# 教师查看个人账户信息页面login/teacher-check-self.html
+def teacher_check_self(request):
+    if request.method == 'GET':
+        return render(request, 'login/teacher-check-self.html')
+    elif request.method == 'POST':
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        teacher = request.POST.get('teacher')
+        # 将教师反序列化为字典
+        teacher = json.loads(teacher)
+        print('收到上传的内容：', teacher)
+        # 将上传结果保存到数据库
+        try:
+            Teacher.objects.filter(id=teacher['id']).update(name=teacher['name'], sex=teacher['sex'], email=teacher['email'], phone=teacher['phone'], school=teacher['school'], department=teacher['department'], title=teacher['title'])
+            print('教师个人信息修改成功！id =', teacher['id'])
+            request.session['teacher'] = teacher  # 将修改后的teacher字典传入session
+            return JsonResponse({"msg": "success"})
+        except Exception as e:
+            print('教师个人信息修改失败！id =', teacher['id'])
+            print(e)
+            return JsonResponse({"msg": "failed"})
+
+
+# 管理员修改账号密码页面login/teacher-change-password.html
+def teacher_change_password(request):
+    if request.method == 'GET':
+        return render(request, 'login/teacher-change-password.html')
+    elif request.method == 'POST':
+        # 获取AJAX上传的数据，获取对象为JSON
+        password = request.POST.get('password')
+        # 将密码反序列化为字典
+        password = json.loads(password)
+        print('收到上传的内容：', password)
+
+        # 从session中读出目前的用户信息
+        teacher = request.session['teacher']
+        # 校验密码
+        if teacher['password'] == password['pre_password']:    # 若原密码匹配，将上传结果保存到数据库
+            try:
+                Teacher.objects.filter(id=teacher['id']).update(password=password['new_password'])
+                teacher['password'] = password['new_password']
+                print('教师密码修改成功！id =', teacher['id'])
+                request.session['teacher'] = teacher  # 将修改后的admin字典传入session
+                return JsonResponse({"msg": "success"})
+            except Exception as e:
+                print('教师密码修改失败！id =', teacher['id'])
+                print(e)
+                # 如果这样返回，两边都不需要进行json的序列化与反序列化，ajax接受的直接是一个对象
+                return JsonResponse({"msg": "failed"})
+        elif teacher['password'] != password['pre_password']:  # 若原密码不匹配，则修改失败
+            # 传文本给前端Ajax
+            print('密码不匹配，修改失败！')
+            return JsonResponse({"msg": "failed"})
+
+
+# 教师欢迎页面login/teacher-welcome.html
+def teacher_welcome(request):
+    if request.method == 'GET':
+        return render(request, 'login/teacher-welcome.html')
+
+
+# 教师查看课程列表login/teacher-list-course.html
+def teacher_list_course(request):
+    if request.method == 'GET':
+        if 'search' in request.GET:
+            # 查询操作，取出搜索框输入的名称，单位
+            course_name = request.GET.get('course_name')
+            course_laboratory_name = request.GET.get('course_laboratory_name')
+
+            try:
+                # 从数据库中模糊查询，查出实验室列表，按照序号排序，其中教师为当前登录教师
+                course_list = Course.objects.filter(teacher_name=request.session.get('teacher')['name'], name__contains=course_name, laboratory_name__contains=course_laboratory_name).order_by('-id')
+                print('查找结果：', course_list)
+            except Exception as e:
+                print('没有查询到结果！name =', course_name)
+                print(e)
+                course_list = []
+
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(course_list, 5)
+            page = request.GET.get('page')
+            try:
+                course_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                course_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/teacher-list-course.html', {"course_list": course_list})
+        else:
+            # 从数据库中查询实验设备列表
+            course_list = Course.objects.filter(teacher_name=request.session.get('teacher')['name']).order_by('-id')
+            print('当前课程列表：', course_list)
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(course_list, 5)
+            # 获取 url 后面的 page 参数的值, 首页不显示 page 参数, 默认值是 1
+            page = request.GET.get('page')
+            try:
+                course_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                course_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/teacher-list-course.html', {"course_list": course_list})
+    elif request.method == 'POST':  # 删除课程操作
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        course_id = request.POST.get('id')
+        # 删除数据库中的记录
+        Course.objects.filter(id=course_id).delete()
+        print('删除课程成功！id =', course_id)
+        return HttpResponse('课程删除成功')
+
+
+# 教师添加课程login/teacher-add-course.html
+def teacher_add_course(request):
+    if request.method == 'GET':
+        # 从数据库中查出实验室列表，返回给前端页面
+        laboratory_list = Laboratory.objects.all()
+        return render(request, 'login/teacher-add-course.html', {'laboratory_list': laboratory_list})
+    if request.method == 'POST':    # 接收AJAX响应，新增实验
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        name = request.POST.get("name")
+        teacher_id = request.session.get('teacher')['id']
+        teacher_name = request.session.get('teacher')['name']
+        laboratory_name = request.POST.get("laboratory_name")
+        laboratory_id = Laboratory.objects.filter(name=laboratory_name)[0].id
+        location = Laboratory.objects.filter(name=laboratory_name)[0].location
+        note = request.POST.get('note')
+        add_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+        max_num = request.POST.get('max_num')
+        select_num = 0
+
+        # 将上传的数据创建字典
+        course = {'name': name, 'teacher_id': teacher_id, 'teacher_name': teacher_name, 'laboratory_id': laboratory_id, 'laboratory_name': laboratory_name, 'location': location, 'note': note, 'add_time': add_time, 'max_num': max_num, 'select_num': select_num, 'file_url': ''}
+        # 获取上传的文件
+        file = request.FILES.get("file", None)  # 获取上传的文件，如果没有文件，则默认为None
+
+        print('收到上传的内容：', course)
+        # 获取当前时间
+        now_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+        # 将上传的文件保存到服务器本地
+        url = os.path.join(BASE_DIR, 'login', 'static', 'login', 'course_file', course['name'] + '-' + now_time + '.pdf')
+        print('文件保存路径：', url)
+        # 将文件写入指定位置
+        if not file:  # 如果没有接收到文件
+            print('没有接收到文件！')
+            return JsonResponse({"msg": "failed"})
+        destination = open(url, 'wb+')  # 打开特定的文件进行二进制的写操作
+        for chunk in file.chunks():  # 分块写入文件
+            destination.write(chunk)
+        destination.close()
+        print('文件保存成功！')
+
+        # 设置文件访问路径
+        substr = os.path.join(BASE_DIR, 'login')
+        url = url.replace(substr, '')  # 替换子串,形成文件访问路径
+        course['file_url'] = url
+        print('文件访问路径：', url)
+
+        # 将信息存入数据库
+        try:
+            Course.objects.create(name=course['name'], teacher_id=course['teacher_id'], teacher_name=course['teacher_name'], laboratory_id=course['laboratory_id'], laboratory_name=course['laboratory_name'], location=course['location'], note=course['note'], add_time=course['add_time'], file_url=course['file_url'], max_num=course['max_num'], select_num=course['select_num'])
+            print('课程创建成功！name =', course['name'])
+            return JsonResponse({"msg": "success"})
+        except Exception as e:
+            print('课程创建失败！name =', course['name'])
+            print(e)
+        return JsonResponse({"msg": "failed"})
+
+
+# 学生功能页面login/student-home.html
+def student_home(request):
+    if request.method == 'GET':
+        return render(request, 'login/student-home.html')

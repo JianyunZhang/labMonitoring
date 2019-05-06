@@ -3,7 +3,7 @@
 
   <head>
     <meta charset="UTF-8">
-    <title>管理员功能页面-开设实验列表</title>
+    <title>教师功能页面-发布实验列表</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
@@ -23,7 +23,7 @@
   <body>
     <div class="x-nav">
       <span class="layui-breadcrumb">
-        <a _href="/admin-welcome/">首页</a>
+        <a _href="/teacher-welcome/">首页</a>
         <a href=""><cite>开设实验列表</cite></a>
       </span>
       <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="?page={{ course_list.number }}" title="刷新">
@@ -32,18 +32,15 @@
     </div>
     <div class="x-body">
       <div class="layui-row">
-        <form class="layui-form layui-col-md12 x-so" method="get" action="/admin-list-course/">
+        <form class="layui-form layui-col-md12 x-so" method="get" action="/teacher-list-course/">
           <input type="text" name="course_name" id="course_name" placeholder="请输入课程名称" class="layui-input">
-          <input type="text" name="course_teacher_name" id="course_teacher_name" placeholder="请输入开课教师姓名" class="layui-input">
           <input type="text" name="course_laboratory_name" id="course_laboratory_name" placeholder="请输入开课实验室" class="layui-input">
           <button class="layui-btn"  lay-submit="" lay-filter="sreach" name="search" type="submit"><i class="layui-icon">&#xe615;</i></button>
         </form>
       </div>
-      <!--
       <xblock>
-        <button class="layui-btn" onclick="x_admin_show('新增实验设备','/admin-add-instrument', 550, 400)"><i class="layui-icon"></i>新增实验设备</button>
+        <button class="layui-btn" onclick="x_admin_show('新增实验','/teacher-add-course', 550, 400)"><i class="layui-icon"></i>新增实验</button>
       </xblock>
-      -->
       <table class="layui-table">
         <thead>
           <tr>
@@ -55,6 +52,7 @@
             <th>开课日期</th>
             <th>当前已选/最大人数</th>
             <th>文件下载</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody>
@@ -68,6 +66,14 @@
             <td>{{ course.add_time }}</td>
             <td>{{ course.select_num }}/{{ course.max_num }}</td>
             <td><a href="{{ course.file_url }}" download="{{ course.name }}">实验大纲</a></td>
+            <td class="td-manage" align="center">
+              <a title="编辑课程信息"  onclick="x_admin_show('编辑课程信息','/teacher-check-course?id={{ course.id }}', 550, 490)" href="javascript:;">
+                <i class="layui-icon">&#xe642;</i>
+              </a>
+               <a title="删除课程" onclick="member_del(this,'{{ course.id }}')" href="javascript:;">
+                <i class="layui-icon">&#xe640;</i>
+              </a>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
@@ -176,13 +182,13 @@
           });
       }
 
-      /*按id删除实验设备*/
+      /*按id删除课程*/
       function member_del(obj,id){
           layer.confirm('确认要删除吗？',function(index){
               //发异步删除数据
               //利用jQuery.ajax()发异步，把数据提交给django
               $.ajax({
-                  url: "/admin-list-instrument/",  //链接地址，字符串表示
+                  url: "/teacher-list-course/",  //链接地址，字符串表示
                   data: {'id': id},    //{name: 'jenny'},    //需发送到服务器的数据，GET与POST都可以，格式为{A: '...', B: '...'}
                   type: "POST",     //"POST" 或 "GET"，请求类型
                   dataType: "json",     //服务器响应的数据类型，字符串表示；当填写为json时，回调函数中无需再对数据反序列化为json
