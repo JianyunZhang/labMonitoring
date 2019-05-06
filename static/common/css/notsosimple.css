@@ -15,10 +15,10 @@ ul { margin: 0px 24px; padding: 0px; list-style: disc outside; }
 ul ul { margin-top: 0px; padding-top: 0px; list-style: circle outside; }
 ul ul ul { margin-top: 0px; padding-top: 0px; list-style: square outside; }
 
-a { text-decoration:none; color: #00f; }
-a:visited { text-decoration:none; color: #00f; }
-a:hover { text-decoration:underline; color: #00f; }
-a:active { color: #00f; }
+a { text-decoration:none; color: #003366; }
+a:visited { text-decoration:none; color: #003366; }
+a:hover { text-decoration:underline; color: #003366; }
+a:active { color: #003366; }
 
 .vspace { margin: 4px; }
 p.vspace { padding: 3px; }
@@ -141,11 +141,11 @@ td.column {
 }
 .nav3-grid dt a {
 	font-family: 'Segoe UI', Arial, Verdana, Helvetica, sans-serif;
-	font-size: 100%; padding: 5px 10px 0px 15px; height: auto !important; color: rgb(51, 102, 255); line-height: 1.5em; font-weight: bold; text-decoration: none; border-top-color: rgb(200, 200, 200); border-top-width: 1px; border-top-style: solid; display: block; min-height: 2em;
+	font-size: 100%; padding: 5px 10px 0px 15px; height: auto !important; color: rgb(0, 51, 102); line-height: 1.5em; font-weight: bold; text-decoration: none; border-top-color: rgb(200, 200, 200); border-top-width: 1px; border-top-style: solid; display: block; min-height: 2em;
 }
 .nav3-grid dt a:visited {
 	font-family: 'Segoe UI', Arial, Verdana, Helvetica, sans-serif;
-	font-size: 100%; padding: 5px 10px 0px 15px; height: auto !important; color: rgb(51, 102, 255); line-height: 1.5em; font-weight: bold; text-decoration: none; border-top-color: rgb(200, 200, 200); border-top-width: 1px; border-top-style: solid; display: block; min-height: 2em;
+	font-size: 100%; padding: 5px 10px 0px 15px; height: auto !important; color: rgb(0, 51, 102); line-height: 1.5em; font-weight: bold; text-decoration: none; border-top-color: rgb(200, 200, 200); border-top-width: 1px; border-top-style: solid; display: block; min-height: 2em;
 }
 .nav3-grid dd a {
 	font-family: 'Segoe UI', Arial, Verdana, Helvetica, sans-serif;

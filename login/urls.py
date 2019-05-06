@@ -25,4 +25,7 @@ urlpatterns = [
     path('admin-list-instrument/', views.admin_list_instrument),  # 管理员查看实验仪器列表
     path('admin-add-instrument/', views.admin_add_instrument),  # 管理员添加实验仪器
     path('admin-check-instrument/', views.admin_check_instrument),  # 管理员查看实验仪器
+    path('admin-list-course/', views.admin_list_course),  # 管理员查看课程列表
+    path('admin-list-select/', views.admin_list_select),  # 管理员查看选课列表
+    path('teacher-home/', views.teacher_home),  # 教师功能页面
 ]

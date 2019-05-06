@@ -66,6 +66,8 @@ class Course(models.Model):  # 开设实验课程类
     location = models.CharField(max_length=30)  # 上课地址
     note = models.CharField(max_length=100)  # 课程说明
     add_time = models.DateTimeField(auto_now=True)  # 加入时间
+    max_num = models.IntegerField(default=30)    # 最大人数
+    select_num = models.IntegerField(default=0)  # 已选人数
     file_url = models.CharField(default='', max_length=200)  # 教学大纲URL地址
 
 

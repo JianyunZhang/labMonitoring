@@ -3,7 +3,7 @@
 
   <head>
     <meta charset="UTF-8">
-    <title>管理员功能页面-开设实验列表</title>
+    <title>管理员功能页面-学生选课列表</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
@@ -24,18 +24,22 @@
     <div class="x-nav">
       <span class="layui-breadcrumb">
         <a _href="/admin-welcome/">首页</a>
-        <a href=""><cite>开设实验列表</cite></a>
+        <a href=""><cite>学生选课列表</cite></a>
       </span>
-      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="?page={{ course_list.number }}" title="刷新">
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="?page={{ select_list.number }}" title="刷新">
         <i class="layui-icon" style="line-height:30px">ဂ</i>
       </a>
     </div>
     <div class="x-body">
       <div class="layui-row">
-        <form class="layui-form layui-col-md12 x-so" method="get" action="/admin-list-course/">
-          <input type="text" name="course_name" id="course_name" placeholder="请输入课程名称" class="layui-input">
-          <input type="text" name="course_teacher_name" id="course_teacher_name" placeholder="请输入开课教师姓名" class="layui-input">
-          <input type="text" name="course_laboratory_name" id="course_laboratory_name" placeholder="请输入开课实验室" class="layui-input">
+        <form class="layui-form layui-col-md12 x-so" method="get" action="/admin-list-select/">
+          <input type="text" name="select_student_name" id="select_student_name" placeholder="请输入学生名" class="layui-input">
+          <input type="text" name="select_teacher_name" id="select_teacher_name" placeholder="请输入开课教师姓名" class="layui-input">
+          <select name="select_course_name" id="select_course_name">
+            {% for course in course_list %}
+               <option value="{{ course.name }}"> {{ course.name }} </option>
+            {% endfor %}
+          </select>
           <button class="layui-btn"  lay-submit="" lay-filter="sreach" name="search" type="submit"><i class="layui-icon">&#xe615;</i></button>
         </form>
       </div>
@@ -48,26 +52,20 @@
         <thead>
           <tr>
             <th>实验名称</th>
+            <th>学生姓名</th>
             <th>授课教师</th>
-            <th>实验室</th>
-            <th>上课地点</th>
-            <th>实验说明</th>
-            <th>开课日期</th>
-            <th>当前已选/最大人数</th>
-            <th>文件下载</th>
+            <th>选课时间</th>
+            <th>课程得分</th>
           </tr>
         </thead>
         <tbody>
-          {% for course in course_list %}
+          {% for select in select_list %}
           <tr>
-            <td>{{ course.name }}</td>
-            <td>{{ course.teacher_name }}</td>
-            <td>{{ course.laboratory_name }}</td>
-            <td>{{ course.location }}</td>
-            <td>{{ course.note }}</td>
-            <td>{{ course.add_time }}</td>
-            <td>{{ course.select_num }}/{{ course.max_num }}</td>
-            <td><a href="{{ course.file_url }}">实验大纲</a></td>
+            <td>{{ select.course_name }}</td>
+            <td>{{ select.student_name }}</td>
+            <td>{{ select.teacher_name }}</td>
+            <td>{{ select.select_time }}</td>
+            <td>{{ select.score }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -76,8 +74,8 @@
       <div class="page">
         <div>
         <!--上一页-->
-        {% if course_list.has_previous %}
-          <a class='prev' href="?page={{ course_list.previous_page_number }}">上一页</a>
+        {% if select_list.has_previous %}
+          <a class='prev' href="?page={{ select_list.previous_page_number }}">上一页</a>
         {% endif %}
 
         <!--左边的页码-->
@@ -86,8 +84,8 @@
         {% endfor %}
 
         <!--中间的页码-->
-        <span class="current" href="?page={{ course_list.number }}">
-           第 {{ course_list.number }} 页，总 {{ course_list.paginator.num_pages }} 页
+        <span class="current" href="?page={{ select_list.number }}">
+           第 {{ select_list.number }} 页，总 {{ select_list.paginator.num_pages }} 页
         </span>
 
         <!--右边的页码-->
@@ -96,8 +94,8 @@
         {% endfor %}
 
         <!--下一页-->
-        {% if course_list.has_next %}
-          <a class='next' href="?page={{ course_list.next_page_number }}">
+        {% if select_list.has_next %}
+          <a class='next' href="?page={{ select_list.next_page_number }}">
               下一页
           </a>
         {% endif %}

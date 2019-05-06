@@ -797,6 +797,134 @@ def admin_check_instrument(request):
             return JsonResponse({"msg": "failed"})
 
 
-def student_home(request):
-    return render(request, 'login/student-home.html')
+# 管理员查看课程列表login/admin-list-course.html
+def admin_list_course(request):
+    if request.method == 'GET':
+        if 'search' in request.GET:
+            # 查询操作，取出搜索框输入的名称，单位
+            course_name = request.GET.get('course_name')
+            course_teacher_name = request.GET.get('course_teacher_name')
+            course_laboratory_name = request.GET.get('course_laboratory_name')
 
+            try:
+                # 从数据库中模糊查询，查出实验室列表，按照序号排序
+                course_list = Course.objects.filter(name__contains=course_name, teacher_name__contains=course_teacher_name, laboratory_name__contains=course_laboratory_name).order_by('-id')
+                print('查找结果：', course_list)
+            except Exception as e:
+                print('没有查询到结果！name =', course_name)
+                print(e)
+                course_list = []
+
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(course_list, 5)
+            page = request.GET.get('page')
+            try:
+                instrument_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                course_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/admin-list-course.html', {"course_list": course_list})
+        else:
+            # 从数据库中查询实验设备列表
+            course_list = Course.objects.all().order_by('-id')
+            print('当前课程列表：', course_list)
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(course_list, 5)
+            # 获取 url 后面的 page 参数的值, 首页不显示 page 参数, 默认值是 1
+            page = request.GET.get('page')
+            try:
+                course_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                course_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/admin-list-course.html', {"course_list": course_list})
+    elif request.method == 'POST':  # 删除课程操作
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        course_id = request.POST.get('id')
+        # 删除数据库中的记录
+        Course.objects.filter(id=course_id).delete()
+        print('删除课程成功！id =', course_id)
+        return HttpResponse('课程删除成功')
+
+
+# 管理员查看选课列表login/admin-list-select.html
+def admin_list_select(request):
+    if request.method == 'GET':
+        if 'search' in request.GET:
+            # 查询操作，取出搜索框输入的学生名，授课教师，课程名
+            select_student_name = request.GET.get('select_student_name')
+            select_teacher_name = request.GET.get('select_teacher_name')
+            select_course_name = request.GET.get('select_course_name')
+            # 从数据库中查出实验室列表
+            course_list = Course.objects.all()
+            try:
+                # 从数据库中模糊查询，查出实验室列表，按照序号排序
+                select_list = Select.objects.filter(student_name__contains=select_student_name, teacher_name__contains=select_teacher_name, course_name__contains=select_course_name).order_by('-id')
+                print('查找结果：', select_list)
+            except Exception as e:
+                print('没有查询到结果！student_name =', select_student_name)
+                print(e)
+                select_list = []
+
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(select_list, 5)
+            page = request.GET.get('page')
+            try:
+                select_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                select_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/admin-list-select.html', {"select_list": select_list, 'course_list': course_list})
+        else:
+            # 从数据库中查询实验设备列表
+            select_list = Select.objects.all().order_by('-id')
+            print('当前选课列表：', select_list)
+            # 从数据库中查出实验室列表
+            course_list = Course.objects.all()
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(select_list, 5)
+            # 获取 url 后面的 page 参数的值, 首页不显示 page 参数, 默认值是 1
+            page = request.GET.get('page')
+            try:
+                select_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                select_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/admin-list-select.html', {"select_list": select_list, 'course_list': course_list})
+    elif request.method == 'POST':  # 删除课程操作
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        select_id = request.POST.get('id')
+        # 删除数据库中的记录
+        Select.objects.filter(id=select_id).delete()
+        print('删除选课成功！id =', select_id)
+        return HttpResponse('选课删除成功')
+
+
+# 教师功能页面login/teacher-home.html
+def teacher_home(request):
+    if request.method == 'GET':
+        return render(request, 'login/teacher-home.html')
