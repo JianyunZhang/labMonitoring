@@ -67,7 +67,7 @@
             <td>{{ course.select_num }}/{{ course.max_num }}</td>
             <td><a href="{{ course.file_url }}" download="{{ course.name }}">实验大纲</a></td>
             <td class="td-manage" align="center">
-              <a title="编辑课程信息"  onclick="x_admin_show('编辑课程信息','/teacher-check-course?id={{ course.id }}', 550, 490)" href="javascript:;">
+              <a title="编辑课程信息"  onclick="x_admin_show('编辑课程信息','/teacher-check-course?id={{ course.id }}', 500, 420)" href="javascript:;">
                 <i class="layui-icon">&#xe642;</i>
               </a>
                <a title="删除课程" onclick="member_del(this,'{{ course.id }}')" href="javascript:;">

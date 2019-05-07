@@ -33,5 +33,5 @@ urlpatterns = [
     path('teacher-welcome/', views.teacher_welcome),    # 教师欢迎界面
     path('teacher-list-course/', views.teacher_list_course),  # 教师查看课程列表
     path('teacher-add-course/', views.teacher_add_course),  # 教师新增课程
-    #path('teacher-check-course/', views.teacher_check_course),  # 教师查看课程
+    path('teacher-check-course/', views.teacher_check_course),  # 教师查看已发布课程
 ]

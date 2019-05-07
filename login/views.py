@@ -952,7 +952,7 @@ def teacher_check_self(request):
             return JsonResponse({"msg": "failed"})
 
 
-# 管理员修改账号密码页面login/teacher-change-password.html
+# 教师修改账号密码页面login/teacher-change-password.html
 def teacher_change_password(request):
     if request.method == 'GET':
         return render(request, 'login/teacher-change-password.html')
@@ -1106,6 +1106,69 @@ def teacher_add_course(request):
             print('课程创建失败！name =', course['name'])
             print(e)
         return JsonResponse({"msg": "failed"})
+
+
+# 教师查看实验详情login/teacher_check_course.html
+def teacher_check_course(request):
+    if request.method == 'GET':
+        course_id = request.GET.get('id')
+        # 从数据库中查询该实验的数据
+        course = Course.objects.get(id=course_id)
+        # 将实验转换为字典
+        # course_dict = json.loads(json.dumps(course, default=lambda obj: obj.__dict__))
+        course_dict = {'id': course.id, 'name': course.name, 'teacher_id': course.teacher_id, 'teacher_name': course.teacher_name, 'laboratory_id': course.laboratory_id, 'laboratory_name': course.laboratory_name, 'location': course.location, 'note': course.note, 'add_time': course.add_time, 'file_url': course.file_url, 'max_num': course.max_num, 'select_num': course.select_num}
+        # 打印选中的实验
+        print(course_dict)
+        # 从数据库中查询实验室列表
+        laboratory_list = Laboratory.objects.all()
+        return render(request, 'login/teacher-check-course.html', {'course_dict': course_dict, 'laboratory_list': laboratory_list})
+    elif request.method == 'POST':
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        id = request.POST.get("id")
+        name = request.POST.get("name")
+        note = request.POST.get('note')
+        laboratory_name = request.POST.get('laboratory_name')
+        laboratory_id = Laboratory.objects.filter(name=laboratory_name)[0].id
+        location = Laboratory.objects.filter(name=laboratory_name)[0].location
+        max_num = request.POST.get('max_num')
+
+        # 将上传的数据创建字典
+        course = {'id': id, 'name': name, 'note': note, 'laboratory_name': laboratory_name, 'laboratory_id': laboratory_id, 'location': location, 'max_num': max_num, 'file_url': ''}
+        # 获取上传的文件
+        file = request.FILES.get("file", None)  # 获取上传的文件，如果没有文件，则默认为None
+        print('收到上传的内容：', course)
+
+        # 获取当前时间
+        now_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+        # 将上传的文件保存到服务器本地
+        url = os.path.join(BASE_DIR, 'login', 'static', 'login', 'course_file', course['name'] + '-' + now_time + '.pdf')
+        print('文件保存路径：', url)
+        # 将文件写入指定位置
+        if not file:  # 如果没有接收到文件
+            print('没有接收到文件！')
+            Course.objects.filter(id=course['id']).update(name=course['name'], note=course['note'], laboratory_name=course['laboratory_name'], laboratory_id=course['laboratory_id'], location=course['location'], max_num=course['max_num'])
+            return JsonResponse({"msg": "success"})
+        destination = open(url, 'wb+')  # 打开特定的文件进行二进制的写操作
+        for chunk in file.chunks():  # 分块写入文件
+            destination.write(chunk)
+        destination.close()
+        print('文件保存成功！')
+
+        # 设置照片访问路径
+        substr = os.path.join(BASE_DIR, 'login')
+        url = url.replace(substr, '')  # 替换子串,形成照片访问路径
+        course['file_url'] = url
+        print('文件访问路径：', url)
+
+        # 将信息存入数据库
+        try:
+            Course.objects.filter(id=course['id']).update(name=course['name'], note=course['note'], laboratory_name=course['laboratory_name'], laboratory_id=course['laboratory_id'], location=course['location'], max_num=course['max_num'], file_url=course['file_url'])
+            print('课程修改成功！name =', course['name'])
+            return JsonResponse({"msg": "success"})
+        except Exception as e:
+            print('课程修改失败！name =', course['name'])
+            print(e)
+            return JsonResponse({"msg": "failed"})
 
 
 # 学生功能页面login/student-home.html
