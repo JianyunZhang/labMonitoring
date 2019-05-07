@@ -27,8 +27,8 @@
                   <span class="x-red">*</span>用户名：
               </label>
               <div class="layui-form-mid">
-                  <b>{{ request.session.teacher.id }}</b>
-                  <input type="text" hidden="hidden" id="id" name="id" lay-verify="required" value="{{ request.session.teacher.id }}">
+                  <b>{{ request.session.student.id }}</b>
+                  <input type="text" hidden="hidden" id="id" name="id" lay-verify="required" value="{{ request.session.student.id }}">
               </div>
               <div class="layui-form-mid layui-word-aux">
                   您账号的唯一登录名称
@@ -39,7 +39,7 @@
                   <span class="x-red">*</span>密码：
               </label>
               <div class="layui-input-inline">
-                  <input type="password" id="password" name="password" lay-verify="required" autocomplete="off" class="layui-input" value="{{ request.session.teacher.password }}">
+                  <input type="password" id="password" name="password" lay-verify="required" autocomplete="off" class="layui-input" value="{{ request.session.student.password }}">
               </div>
           </div>
           <div class="layui-form-item">
@@ -47,7 +47,7 @@
                   <span class="x-red">*</span>姓名：
               </label>
               <div class="layui-input-inline">
-                  <input type="text" id="name" name="name" lay-verify="required" autocomplete="off" class="layui-input" value="{{ request.session.teacher.name }}">
+                  <input type="text" id="name" name="name" lay-verify="required" autocomplete="off" class="layui-input" value="{{ request.session.student.name }}">
               </div>
           </div>
           <div class="layui-form-item">
@@ -55,8 +55,8 @@
                   <span class="x-red">*</span>性别：
               </label>
               <div class="layui-input-inline">
-                  <input type="radio" name="sex" value="male" title="男" {% if request.session.teacher.sex  == 'male' %} checked {% endif %}/>
-                  <input type="radio" name="sex" value="female" title="女" {% if request.session.teacher.sex == 'female' %} checked {% endif %}/>
+                  <input type="radio" name="sex" value="male" title="男" {% if request.session.student.sex  == 'male' %} checked {% endif %}/>
+                  <input type="radio" name="sex" value="female" title="女" {% if request.session.student.sex == 'female' %} checked {% endif %}/>
               </div>
           </div>
           <div class="layui-form-item">
@@ -64,7 +64,7 @@
                   电子邮箱：
               </label>
               <div class="layui-input-inline">
-                  <input type="text" id="email" name="email" autocomplete="off" class="layui-input" lay-verify="email" value="{{ request.session.teacher.email }}">
+                  <input type="text" id="email" name="email" autocomplete="off" class="layui-input" lay-verify="email" value="{{ request.session.student.email }}">
               </div>
               <div class="layui-form-mid layui-word-aux">
                   您目前常用的电子邮箱
@@ -75,7 +75,7 @@
                   手机：
               </label>
               <div class="layui-input-inline">
-                  <input type="text" id="phone" name="phone" autocomplete="off" class="layui-input" lay-verify="phone" value="{{ request.session.teacher.phone }}">
+                  <input type="text" id="phone" name="phone" autocomplete="off" class="layui-input" lay-verify="phone" value="{{ request.session.student.phone }}">
               </div>
               <div class="layui-form-mid layui-word-aux">
                   您目前常用的手机号码
@@ -86,18 +86,18 @@
                   所在学院：
               </label>
               <div class="layui-input-inline">
-                  <input type="text" id="school" name="school" autocomplete="off" class="layui-input" value="{{ request.session.teacher.school }}">
+                  <input type="text" id="school" name="school" autocomplete="off" class="layui-input" value="{{ request.session.student.school }}">
               </div>
               <div class="layui-form-mid layui-word-aux">
-                  您目前所在的工作单位
+                  您目前所在的学院
               </div>
           </div>
           <div class="layui-form-item">
-              <label for="department" class="layui-form-label">
+              <label for="specialty" class="layui-form-label">
                   所属专业：
               </label>
               <div class="layui-input-inline">
-                  <input type="text" id="department" name="department" autocomplete="off" class="layui-input" value="{{ request.session.teacher.department }}">
+                  <input type="text" id="specialty" name="specialty" autocomplete="off" class="layui-input" value="{{ request.session.student.specialty }}">
               </div>
               <div class="layui-form-mid layui-word-aux">
                   您目前所属的专业
@@ -105,13 +105,13 @@
           </div>
           <div class="layui-form-item">
               <label for="title" class="layui-form-label">
-                  职称：
+                  班级：
               </label>
               <div class="layui-input-inline">
-                  <input type="text" id="title" name="title" autocomplete="off" class="layui-input" value="{{ request.session.teacher.title }}">
+                  <input type="text" id="class_no" name="class_no" autocomplete="off" class="layui-input" value="{{ request.session.student.class_no }}">
               </div>
               <div class="layui-form-mid layui-word-aux">
-                  您目前的职称
+                  您目前所属的班级
               </div>
           </div>
           <div class="layui-form-item">
@@ -170,8 +170,8 @@
 
           //利用jQuery.ajax()发异步，把数据提交给django
           $.ajax({
-              url: "/teacher-check-self/",  //链接地址，字符串表示
-              data: {'teacher': JSON.stringify(data.field)},    //{name: 'jenny'},    //需发送到服务器的数据，GET与POST都可以，格式为{A: '...', B: '...'}
+              url: "/student-check-self/",  //链接地址，字符串表示
+              data: {'student': JSON.stringify(data.field)},    //{name: 'jenny'},    //需发送到服务器的数据，GET与POST都可以，格式为{A: '...', B: '...'}
               type: "POST",     //"POST" 或 "GET"，请求类型
               dataType: "json",     //服务器响应的数据类型，字符串表示；当填写为json时，回调函数中无需再对数据反序列化为json
               success: function(data) {     //请求成功后，服务器回调的函数

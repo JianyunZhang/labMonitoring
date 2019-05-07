@@ -34,4 +34,10 @@ urlpatterns = [
     path('teacher-list-course/', views.teacher_list_course),  # 教师查看课程列表
     path('teacher-add-course/', views.teacher_add_course),  # 教师新增课程
     path('teacher-check-course/', views.teacher_check_course),  # 教师查看已发布课程
+    path('teacher-list-select/', views.teacher_list_select),  # 教师查看学生选课列表
+    path('student-home/', views.student_home),  # 学生功能页面
+    path('student-check-self/', views.student_check_self),  # 学生查看个人信息
+    path('student-change-password/', views.student_change_password),  # 学生修改账号密码
+    path('student-welcome/', views.student_welcome),  # 学生欢迎界面
+    path('student-list-course/', views.student_list_course),  # 学生选课列表
 ]

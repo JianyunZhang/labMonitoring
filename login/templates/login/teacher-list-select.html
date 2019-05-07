@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>教师功能页面-学生选课列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" href="/static/common/css/font.css">
+    <link rel="stylesheet" href="/static/common/css/xadmin.css">
+    <script type="text/javascript" src="/static/common/js/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="/static/common/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/common/js/xadmin.js"></script>
+    <script type="text/javascript" src="/static/common/js/cookie.js"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+      <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a _href="/teacher-welcome/">首页</a>
+        <a href=""><cite>学生选课列表</cite></a>
+      </span>
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="?page={{ select_list.number }}" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i>
+      </a>
+    </div>
+    <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so" method="get" action="/teacher-list-select/">
+          <input type="text" name="select_student_name" id="select_student_name" placeholder="请输入学生姓名" class="layui-input">
+          <select name="select_course_name" id="select_course_name">
+            {% for course in course_list %}
+               <option value="{{ course.name }}"> {{ course.name }} </option>
+            {% endfor %}
+          </select>
+          <button class="layui-btn"  lay-submit="" lay-filter="sreach" name="search" type="submit"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+      </div>
+      <table class="layui-table">
+        <thead>
+          <tr>
+            <th>实验名称</th>
+            <th>学生姓名</th>
+            <th>授课教师</th>
+            <th>选课时间</th>
+            <th>课程得分</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for select in select_list %}
+          <tr>
+            <td>{{ select.course_name }}</td>
+            <td>{{ select.student_name }}</td>
+            <td>{{ select.teacher_name }}</td>
+            <td>{{ select.select_time }}</td>
+            <td>{{ select.score }}</td>
+            <td class="td-manage" align="center">
+              <a title="课程打分"  onclick="x_admin_show('课程打分','/teacher-check-select?id={{ select.id }}', 500, 400)" href="javascript:;">
+                <i class="layui-icon">&#xe642;</i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    <!--显示分页按钮-->
+      <div class="page">
+        <div>
+        <!--上一页-->
+        {% if select_list.has_previous %}
+          <a class='prev' href="?page={{ select_list.previous_page_number }}">上一页</a>
+        {% endif %}
+
+        <!--左边的页码-->
+        {% for left_page in left_pages %}
+            <a class='num' href="?page={{ left_page }}">{{ left_page }}</a>
+        {% endfor %}
+
+        <!--中间的页码-->
+        <span class="current" href="?page={{ select_list.number }}">
+           第 {{ select_list.number }} 页，总 {{ select_list.paginator.num_pages }} 页
+        </span>
+
+        <!--右边的页码-->
+        {% for right_page in right_page %}
+            <a class="num" href="?page={{ right_page }}">{{ right_page }}</a>
+        {% endfor %}
+
+        <!--下一页-->
+        {% if select_list.has_next %}
+          <a class='next' href="?page={{ select_list.next_page_number }}">
+              下一页
+          </a>
+        {% endif %}
+
+        </div>
+      </div>
+
+    </div>
+    <script>
+      layui.use('laydate', function(){
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+          elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+          elem: '#end' //指定元素
+        });
+      });
+
+      // using jQuery CSRF令牌认证
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // 这些HTTP方法不要求CSRF包含
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+    </script>
+  </body>
+</html>

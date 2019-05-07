@@ -1000,7 +1000,7 @@ def teacher_list_course(request):
 
             try:
                 # 从数据库中模糊查询，查出实验室列表，按照序号排序，其中教师为当前登录教师
-                course_list = Course.objects.filter(teacher_name=request.session.get('teacher')['name'], name__contains=course_name, laboratory_name__contains=course_laboratory_name).order_by('-id')
+                course_list = Course.objects.filter(teacher_id=request.session.get('teacher')['id'], name__contains=course_name, laboratory_name__contains=course_laboratory_name).order_by('-id')
                 print('查找结果：', course_list)
             except Exception as e:
                 print('没有查询到结果！name =', course_name)
@@ -1024,7 +1024,7 @@ def teacher_list_course(request):
             return render(request, 'login/teacher-list-course.html', {"course_list": course_list})
         else:
             # 从数据库中查询实验设备列表
-            course_list = Course.objects.filter(teacher_name=request.session.get('teacher')['name']).order_by('-id')
+            course_list = Course.objects.filter(teacher_id=request.session.get('teacher')['id']).order_by('-id')
             print('当前课程列表：', course_list)
             # 分页操作
             # 将数据按照规定每页显示 5 条, 进行分割
@@ -1171,7 +1171,203 @@ def teacher_check_course(request):
             return JsonResponse({"msg": "failed"})
 
 
+# 教师查看选课列表login/teacher-list-select.html
+def teacher_list_select(request):
+    if request.method == 'GET':
+        if 'search' in request.GET:
+            # 查询操作，取出搜索框输入的学生名，授课教师，课程名
+            select_student_name = request.GET.get('select_student_name')
+            select_course_name = request.GET.get('select_course_name')
+            # 从数据库中查出课程列表
+            course_list = Course.objects.filter(teacher_id=request.session.get('teacher')['id']).order_by('-id')
+            try:
+                # 从数据库中模糊查询，查出课程列表，按照序号排序
+                select_list = Select.objects.filter(student_name__contains=select_student_name, course_name__contains=select_course_name).order_by('-id')
+                print('查找结果：', select_list)
+            except Exception as e:
+                print('没有查询到结果！student_name =', select_student_name)
+                print(e)
+                select_list = []
+
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(select_list, 5)
+            page = request.GET.get('page')
+            try:
+                select_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                select_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/teacher-list-select.html', {'select_list': select_list, 'course_list': course_list})
+        else:
+            # 从数据库中查询实验列表
+            select_list = Select.objects.filter(teacher_id=request.session.get('teacher')['id']).order_by('-id')
+            print('当前选课列表：', select_list)
+            # 从数据库中查出实验列表
+            course_list = Course.objects.filter(teacher_id=request.session.get('teacher')['id'])
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(select_list, 5)
+            # 获取 url 后面的 page 参数的值, 首页不显示 page 参数, 默认值是 1
+            page = request.GET.get('page')
+            try:
+                select_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                select_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/teacher-list-select.html', {"select_list": select_list, 'course_list': course_list})
+    elif request.method == 'POST':  # 删除课程操作
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        select_id = request.POST.get('id')
+        # 删除数据库中的记录
+        Select.objects.filter(id=select_id).delete()
+        print('删除选课成功！id =', select_id)
+        return HttpResponse('选课删除成功')
+
+
 # 学生功能页面login/student-home.html
 def student_home(request):
     if request.method == 'GET':
         return render(request, 'login/student-home.html')
+
+
+# 学生查看个人账户信息页面login/student-check-self.html
+def student_check_self(request):
+    if request.method == 'GET':
+        return render(request, 'login/student-check-self.html')
+    elif request.method == 'POST':
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        student = request.POST.get('student')
+        # 将教师反序列化为字典
+        student = json.loads(student)
+        print('收到上传的内容：', student)
+        # 将上传结果保存到数据库
+        try:
+            Student.objects.filter(id=student['id']).update(name=student['name'], sex=student['sex'], email=student['email'], phone=student['phone'], school=student['school'], specialty=student['specialty'], class_no=student['class_no'])
+            print('学生个人信息修改成功！id =', student['id'])
+            request.session['student'] = student  # 将修改后的student字典传入session
+            return JsonResponse({"msg": "success"})
+        except Exception as e:
+            print('学生个人信息修改失败！id =', student['id'])
+            print(e)
+            return JsonResponse({"msg": "failed"})
+
+
+# 学生修改账号密码页面login/student-change-password.html
+def student_change_password(request):
+    if request.method == 'GET':
+        return render(request, 'login/student-change-password.html')
+    elif request.method == 'POST':
+        # 获取AJAX上传的数据，获取对象为JSON
+        password = request.POST.get('password')
+        # 将密码反序列化为字典
+        password = json.loads(password)
+        print('收到上传的内容：', password)
+
+        # 从session中读出目前的用户信息
+        student = request.session['student']
+        print('student is', student)
+        # 校验密码
+        if student['password'] == password['pre_password']:    # 若原密码匹配，将上传结果保存到数据库
+            try:
+                Student.objects.filter(id=student['id']).update(password=password['new_password'])
+                student['password'] = password['new_password']
+                print('学生密码修改成功！id =', student['id'])
+                request.session['student'] = student  # 将修改后的admin字典传入session
+                return JsonResponse({"msg": "success"})
+            except Exception as e:
+                print('学生密码修改失败！id =', student['id'])
+                print(e)
+                # 如果这样返回，两边都不需要进行json的序列化与反序列化，ajax接受的直接是一个对象
+                return JsonResponse({"msg": "failed"})
+        elif student['password'] != password['pre_password']:  # 若原密码不匹配，则修改失败
+            # 传文本给前端Ajax
+            print('密码不匹配，修改失败！')
+            return JsonResponse({"msg": "failed"})
+
+
+# 学生欢迎页面login/student-welcome.html
+def student_welcome(request):
+    if request.method == 'GET':
+        return render(request, 'login/student-welcome.html')
+
+
+# 学生查看课程列表login/student-list-course.html
+def student_list_course(request):
+    if request.method == 'GET':
+        if 'search' in request.GET:
+            # 查询操作，取出搜索框输入的名称，单位
+            course_name = request.GET.get('course_name')
+            course_teacher_name = request.GET.get('course_teacher_name')
+            course_laboratory_name = request.GET.get('course_laboratory_name')
+            try:
+                # 从数据库中模糊查询，查出实验室列表，按照序号排序，其中教师为当前登录教师
+                course_list = Course.objects.filter(name__contains=course_name, teacher_name__contains=course_teacher_name, laboratory_name__contains=course_laboratory_name).order_by('-id')
+                # 从数据库中查出当前登录用户已选课程
+                select_list = Select.objects.filter(student_id=request.session.get('student')['id'])
+
+                print('查找结果：', course_list)
+            except Exception as e:
+                print('没有查询到结果！name =', course_name)
+                print(e)
+                course_list = []
+
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(course_list, 5)
+            page = request.GET.get('page')
+            try:
+                course_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                course_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/student-list-course.html', {'course_list': course_list})
+        else:
+            # 从数据库中查询实验设备列表
+            course_list = Course.objects.all().order_by('-id')
+            print('当前课程列表：', course_list)
+            # 分页操作
+            # 将数据按照规定每页显示 5 条, 进行分割
+            paginator = Paginator(course_list, 5)
+            # 获取 url 后面的 page 参数的值, 首页不显示 page 参数, 默认值是 1
+            page = request.GET.get('page')
+            try:
+                course_list = paginator.page(page)
+            # todo: 注意捕获异常
+            except PageNotAnInteger:
+                # 如果请求的页数不是整数, 返回第一页。
+                course_list = paginator.page(1)
+            except InvalidPage:
+                # 如果请求的页数不存在, 重定向页面
+                return HttpResponse('找不到页面的内容')
+            # 将结果返回到页面
+            return render(request, 'login/student-list-course.html', {'course_list': course_list})
+    elif request.method == 'POST':  # 选课操作
+        # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
+        course_id = request.POST.get('id')
+        # 从数据库中查询该课程
+        course = Course.objects.get(id=course_id)
+        # 课程已选人数加一
+        course.select_num = course.select_num + 1
+        # 获取当前时间
+        now_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+        # 将选课记录保存在数据库
+        Select.objects.create(student_id=request.session.get('student')['id'], student_name=request.session.get('student')['name'], course_id=course.id, course_name=course.name, teacher_name=course.teacher_name, teacher_id=course.teacher_id, select_time=now_time, score='')
+        Course.objects.filter(id=course.id).update(select_num=course.select_num)
+        print('选课成功！id =', course_id)
+        return JsonResponse({"msg": "success"})

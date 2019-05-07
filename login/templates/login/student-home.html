@@ -28,7 +28,7 @@
             <a href="javascript:;">{{ request.session.student.name }}</a>
             <!-- 二级菜单 -->
             <dl class="layui-nav-child">
-              <dd><a onclick="x_admin_show('学生个人信息','/student-check-self', 500, 400)">个人信息</a></dd>
+              <dd><a onclick="x_admin_show('学生个人信息','/student-check-self', 550, 560)">个人信息</a></dd>
               <dd><a onclick="x_admin_show('修改密码','/student-change-password', 500, 300)">修改密码</a></dd>
               <dd><a href="/">退出</a></dd>
             </dl>
@@ -45,20 +45,20 @@
             <li>
                 <a href="javascript:;">
                     <i class="iconfont">&#xe6b3;</i>
-                    <cite>实验管理</cite>
+                    <cite>课程信息</cite>
                     <i class="iconfont nav_right">&#xe697;</i>
                 </a>
                 <ul class="sub-menu">
                     <li>
                         <a _href="/student-list-course">
                             <i class="iconfont">&#xe6a7;</i>
-							<cite>实验列表</cite>
+							<cite>课程列表</cite>
                         </a>
                     </li>
                     <li>
                         <a _href="/student-list-select">
                             <i class="iconfont">&#xe6a7;</i>
-                            <cite>已选实验</cite>
+                            <cite>我的课程</cite>
                         </a>
                     </li>
                     <li>
