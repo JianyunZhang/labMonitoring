@@ -1,0 +1,178 @@
+<html class="x-admin-sm">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>管理员-图像预测</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" href="/static/common/css/font.css">
+    <link rel="stylesheet" href="/static/common/css/xadmin.css">
+    <script type="text/javascript" src="/static/common/js/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="/static/common/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/common/js/xadmin.js"></script>
+    <script type="text/javascript" src="/static/common/js/cookie.js"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+      <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="x-body">
+        <form class="layui-form">
+          <div class="layui-form-item">
+              <label class="layui-form-label">
+                  <span class="x-red">*</span>算法与模型：
+              </label>
+              <div class="layui-input-inline">
+                  <select name="prediction_model" id="prediction_model" lay-verify="required">
+                    <option value="SqueezeNet"> SqueezeNet </option>
+                    <option value="RetinaNet"> RetinaNet </option>
+                    <option value="InceptionV3"> InceptionV3 </option>
+                    <option value="DenseNet"> DenseNet </option>
+                  </select>
+              </div>
+              <div class="layui-form-mid layui-word-aux">
+                  支持四种算法进行图像内容预测
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label class="layui-form-label">
+                  <span class="x-red">*</span>检测速度：
+              </label>
+              <div class="layui-input-inline">
+                  <select name="prediction_speed" id="prediction_speed" lay-verify="required">
+                    <option value="normal"> normal </option>
+                    <option value="fast"> fast </option>
+                    <option value="faster"> faster </option>
+                    <option value="fastest"> fastest </option>
+                    <option value="flash"> flash </option>
+                  </select>
+              </div>
+              <div class="layui-form-mid layui-word-aux">
+                  为了确保对象检测精准度，高速模式下最好使用高精度模型
+              </div>
+          </div>
+          <div class="layui-form-item" hidden>
+              <label class="layui-form-label">
+                  <span class="x-red">*</span>图片id：
+              </label>
+              <div class="layui-input-mid">
+                  <p>{{ photo_dict.id }}</p>
+                  <input type="text" name="id" id="id" lay-verify="required" class="layui-input" value="{{ photo_dict.id }}">
+              </div>
+              <div class="layui-form-mid layui-word-aux">
+                  识别照片的唯一方式
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label class="layui-form-label">
+                  图片预览：
+              </label>
+              <div class="layui-input-inline">
+                  <img src="{{ photo_dict.url }}" width="240" height="136">
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="submit">执行图像预测</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+              </div>
+          </div>
+      </form>
+    </div>
+    <script type="text/javascript">
+      layui.use(['form','layer'], function(){
+        $ = layui.jquery;
+        var form = layui.form;
+        var layer = layui.layer;
+
+        // using jQuery CSRF令牌认证
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // 这些HTTP方法不要求CSRF包含
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+
+        //监听submit提交,submit(*)中的 * 号为事件过滤器的值，是在绑定执行提交的元素时设定的按钮属性lay-filter="*"
+        form.on('submit(submit)', function(data){
+          //console.log(data);  //data.elem, data.form, data.field的总和
+          //console.log(data.elem);   //被执行事件的元素DOM对象，一般为button对象
+          //console.log(data.form);   //被执行提交的form对象，一般在存在form标签时才会返回
+          //console.log(data.field);  //当前容器的全部表单字段，名值对形式：{name: value}
+          //console.log(JSON.stringify(data.field));  //当前容器的全部表单字段，序列化为JSON
+          //return false; //停止js脚本，阻止表单跳转。如果需要表单跳转，去掉这段即可。
+
+          var formData = new FormData();
+          formData.append("prediction_model",$("#prediction_model").val());
+          formData.append("prediction_speed",$("#prediction_speed").val());
+          formData.append("id",$("#id").val());
+
+          //利用jQuery.ajax()发异步，把数据提交给django
+          $.ajax({
+              url: "/monitor/admin-prediction-photo/",  //链接地址，字符串表示
+              data: {id: $("#id").val(), prediction_model: $("#prediction_model").val(), prediction_speed: $("#prediction_speed").val()},//formData,   //{name: 'jenny'},    //需发送到服务器的数据，GET与POST都可以，格式为{A: '...', B: '...'}
+              type: "POST",     //"POST" 或 "GET"，请求类型
+              dataType: "json",     //服务器响应的数据类型，字符串表示；当填写为json时，回调函数中无需再对数据反序列化为json
+              success: function(data) {     //请求成功后，服务器回调的函数
+                  if(data.msg === 'success') {
+                      console.log("对象检测执行成功！");
+                      //弹出成功提示框，点击确定后关闭窗口
+                      layer.alert("对象检测执行成功！", {icon: 1},function () {
+                        // 获得frame索引
+                        var index = parent.layer.getFrameIndex(window.name);
+                        //关闭当前frame
+                        parent.layer.close(index);
+                      });
+                      return false;
+                  }
+                  else {
+                      console.log("对象检测执行失败！");
+                      //弹出失败提示框，点击确定后关闭窗口
+                      layer.alert("对象检测执行失败！", {icon: 2},function () {
+                        window.location.reload()
+                      });
+                      return false;
+                  }
+               }
+          });
+          console.log("开始执行对象检测！");
+          layer.alert("开始执行对象检测！", {icon: 1},function () {
+              // 获得frame索引
+              var index = parent.layer.getFrameIndex(window.name);
+              //关闭当前frame
+              parent.layer.close(index);
+          });
+          return false;
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -12,6 +12,7 @@ from login import models
 from captcha.fields import CaptchaField
 from .forms import CaptchaForm
 from login.models import *
+from monitor.models import Setting
 
 import json
 import os
@@ -27,6 +28,12 @@ def index(request):
     # render方法接收request作为第一个参数，要渲染的页面为第二个参数，以及需要传递给页面的数据字典作为第三个参数（可以为空）
     if request.method == 'GET':
         return render(request, 'login/index.html')
+
+
+# 文档页面login/document.html
+def document(request):
+    if request.method == 'GET':
+        return render(request, 'login/document.html')
 
 
 # 登录界面login/login.html
@@ -131,6 +138,7 @@ def register(request):
             except Exception as e:
                 print(e)
                 print('创建教师账号')
+                # 将教师信息存入数据库
                 Teacher.objects.create(id=username, password=password)
                 return JsonResponse({"msg": "success"})
 
@@ -1175,14 +1183,14 @@ def teacher_check_course(request):
 def teacher_list_select(request):
     if request.method == 'GET':
         if 'search' in request.GET:
-            # 查询操作，取出搜索框输入的学生名，授课教师，课程名
+            # 查询操作，取出搜索框输入的学生名，课程名
             select_student_name = request.GET.get('select_student_name')
             select_course_name = request.GET.get('select_course_name')
             # 从数据库中查出课程列表
             course_list = Course.objects.filter(teacher_id=request.session.get('teacher')['id']).order_by('-id')
             try:
                 # 从数据库中模糊查询，查出课程列表，按照序号排序
-                select_list = Select.objects.filter(student_name__contains=select_student_name, course_name__contains=select_course_name).order_by('-id')
+                select_list = Select.objects.filter(teacher_id=request.session.get('teacher')['id'], student_name__contains=select_student_name, course_name__contains=select_course_name).order_by('-id')
                 print('查找结果：', select_list)
             except Exception as e:
                 print('没有查询到结果！student_name =', select_student_name)
@@ -1336,11 +1344,14 @@ def student_list_course(request):
                 # 如果请求的页数不存在, 重定向页面
                 return HttpResponse('找不到页面的内容')
             # 将结果返回到页面
-            return render(request, 'login/student-list-course.html', {'course_list': course_list})
+            return render(request, 'login/student-list-course.html', {'course_list': course_list, 'select_list': select_list})
         else:
-            # 从数据库中查询实验设备列表
+            # 从数据库中查询实验列表
             course_list = Course.objects.all().order_by('-id')
             print('当前课程列表：', course_list)
+            # 从数据库中查出当前登录用户已选课程列表
+            select_list = Select.objects.filter(student_id=request.session.get('student')['id'])
+
             # 分页操作
             # 将数据按照规定每页显示 5 条, 进行分割
             paginator = Paginator(course_list, 5)
@@ -1356,18 +1367,31 @@ def student_list_course(request):
                 # 如果请求的页数不存在, 重定向页面
                 return HttpResponse('找不到页面的内容')
             # 将结果返回到页面
-            return render(request, 'login/student-list-course.html', {'course_list': course_list})
+            return render(request, 'login/student-list-course.html', {'course_list': course_list, 'select_list': select_list})
     elif request.method == 'POST':  # 选课操作
         # 获取AJAX上传的数据，GET上传的数据用request.args获取，POST上传的数据用request.form获取，获取对象为JSON
         course_id = request.POST.get('id')
         # 从数据库中查询该课程
         course = Course.objects.get(id=course_id)
-        # 课程已选人数加一
+        # 从数据库中查出当前登录用户已选课程列表
+        select_list = Select.objects.filter(student_id=request.session.get('student')['id'])
+        print('该用户已选课程：', select_list)
+        # 判断该用户是否已选该课程,若该课程已经被选，直接返回msg=failed
+        for select in select_list:
+            if int(select.course_id) == int(course.id):
+                return JsonResponse({"msg": "failed"})
+
+        # 执行选课操作，课程已选人数加一
         course.select_num = course.select_num + 1
+        # 判断人数是否已满，若已满则选课失败
+        if course.select_num>course.max_num:
+            return JsonResponse({"msg": "failed"})
+
         # 获取当前时间
-        now_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+        now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         # 将选课记录保存在数据库
         Select.objects.create(student_id=request.session.get('student')['id'], student_name=request.session.get('student')['name'], course_id=course.id, course_name=course.name, teacher_name=course.teacher_name, teacher_id=course.teacher_id, select_time=now_time, score='')
+        # 课程当前人数+1保存在数据库
         Course.objects.filter(id=course.id).update(select_num=course.select_num)
         print('选课成功！id =', course_id)
         return JsonResponse({"msg": "success"})

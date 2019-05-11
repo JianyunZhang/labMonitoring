@@ -47,7 +47,7 @@
             <th>实验室</th>
             <th>上课地点</th>
             <th>实验说明</th>
-            <th>开课日期</th>
+            <th>发布时间</th>
             <th>当前已选/最大人数</th>
             <th>文件下载</th>
               <th>操作</th>
@@ -65,9 +65,9 @@
             <td>{{ course.select_num }}/{{ course.max_num }}</td>
             <td><a href="{{ course.file_url }}" download="{{ course.name }}">实验大纲</a></td>
             <td class="td-manage">
-              <a title="选课" onclick="course_select(this,'{{ course.id }}')" href="javascript:;">
-                <i class="layui-icon">&#xe642;</i>
-              </a>
+                <a title="选课" onclick="course_select(this,'{{ course.id }}')" href="javascript:;">
+                    <i class="layui-icon">&#xe642;</i>
+                </a>
             </td>
           </tr>
           {% endfor %}
@@ -169,7 +169,7 @@
                           // 弹窗显示选课成功
                           layer.msg('选课成功!',{icon:1,time:1000});
                       }else{ //若选课失败
-                          layer.msg('选课失败!',{icon:2,time:1000});
+                          layer.msg('该课程已选，选课失败!',{icon:2,time:1000});
                       }
                    }
               });

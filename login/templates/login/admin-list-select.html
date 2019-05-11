@@ -35,11 +35,12 @@
         <form class="layui-form layui-col-md12 x-so" method="get" action="/admin-list-select/">
           <input type="text" name="select_student_name" id="select_student_name" placeholder="请输入学生名" class="layui-input">
           <input type="text" name="select_teacher_name" id="select_teacher_name" placeholder="请输入开课教师姓名" class="layui-input">
-          <select name="select_course_name" id="select_course_name">
+          <input type="text" name="select_course_name" id="select_course_name" placeholder="请输入课程名称" class="layui-input">
+          <!--<select name="select_course_name" id="select_course_name">
             {% for course in course_list %}
                <option value="{{ course.name }}"> {{ course.name }} </option>
             {% endfor %}
-          </select>
+          </select>-->
           <button class="layui-btn"  lay-submit="" lay-filter="sreach" name="search" type="submit"><i class="layui-icon">&#xe615;</i></button>
         </form>
       </div>

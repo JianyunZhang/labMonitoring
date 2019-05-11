@@ -6,6 +6,7 @@ from login import views
 urlpatterns = [
     # 导入login app路由路径
     path('', views.index),  # 系统首页
+    path('document/', views.document),  # 文档展示界面
     path('login/', views.login),  # 登录界面
     path('register/', views.register),  # 注册界面
     path('admin-home/', views.admin_home),  # 管理员功能页面

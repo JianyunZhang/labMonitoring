@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员-查看对象检测结果</title>
+</head>
+<body>
+    <b>对象检测模型：{{ photo_dict.detection_model }}</b><br>
+    <b>对象检测速度：{{ photo_dict.detection_speed }}</b><br>
+    <img src="{{ photo_dict.url_detected }}">
+</body>
+</html>
